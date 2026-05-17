@@ -1204,8 +1204,8 @@ section.active {
   background: var(--bg-light);
   border: 1px solid var(--line-color);
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1233,8 +1233,8 @@ section.active {
 }
 
 .scroll-indicator-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   stroke: var(--text-muted);
   will-change: transform;
 }
