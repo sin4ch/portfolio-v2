@@ -103,8 +103,8 @@ html {
   overflow-x: hidden;
   scroll-behavior: smooth;
   touch-action: pan-y;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
 }
 
@@ -115,14 +115,31 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
 }
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+  height: 6px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background-color: var(--text-muted);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-dark);
 }
 
 body {
@@ -1192,7 +1209,7 @@ section.active {
    ============================================ */
 .scroll-indicator-btn {
   position: fixed;
-  right: var(--spacing);
+  right: calc(var(--spacing) + 8px);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -1221,11 +1238,11 @@ section.active {
 }
 
 .scroll-indicator-down {
-  bottom: var(--spacing);
+  bottom: 20px;
 }
 
 .scroll-indicator-up {
-  top: var(--spacing);
+  top: 20px;
 }
 
 .scroll-indicator-btn svg {
@@ -1366,14 +1383,7 @@ section.active {
     height: auto;
     overscroll-behavior: auto;
     touch-action: pan-y;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar,
-  section::-webkit-scrollbar {
-    display: none;
+    scrollbar-width: thin;
   }
 
   body.home-active {
@@ -1627,15 +1637,15 @@ section.active {
   }
 
   .scroll-indicator-btn {
-    right: var(--spacing);
+    right: calc(var(--spacing) + 8px);
   }
 
   .scroll-indicator-down {
-    bottom: 40px;
+    bottom: 30px;
   }
 
   .scroll-indicator-up {
-    top: calc(var(--spacing) + 44px);
+    top: calc(var(--spacing) + 44px + 10px);
   }
 
   .contact-bar {
@@ -1678,6 +1688,6 @@ section.active {
    ============================================ */
 @media (hover: none) and (pointer: coarse) {
   section {
-    scrollbar-width: none;
+    scrollbar-width: thin;
   }
 }
