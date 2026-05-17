@@ -41,6 +41,7 @@
   let storyStartedAt = 0;
   let storyRemaining = STORY_DURATION;
   let storyPaused = false;
+  let lightboxScrollY = 0;
 
   /* ============================================
      2. GALLERY DATA & LOADING
@@ -412,16 +413,20 @@
   function openLightbox(index) {
     if (galleryImages.length === 0) return;
     currentImageIndex = index;
+    lightboxScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     updateLightboxImage();
     lightbox.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('lightbox-open');
+    document.body.style.top = `-${lightboxScrollY}px`;
     startStoryTimer();
     showTapHint();
   }
 
   function closeLightbox() {
     lightbox.classList.remove('active');
-    document.body.style.overflow = '';
+    document.body.classList.remove('lightbox-open');
+    document.body.style.top = '';
+    window.scrollTo(0, lightboxScrollY);
     stopStoryTimer();
     storyPaused = false;
   }

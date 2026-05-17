@@ -120,6 +120,12 @@ body {
   background-color: var(--bg-light);
 }
 
+body.lightbox-open {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   width: 6px;
@@ -869,7 +875,7 @@ section.active {
     calc(var(--spacing) + var(--lightbox-control-gap) + 38px)
     var(--spacing)
     calc(var(--spacing) + var(--lightbox-control-gap) + var(--lightbox-counter-size));
-  background-color: rgba(0, 0, 0, 0.95);
+  background-color: rgba(0, 0, 0, 0.985);
   z-index: 10050;
   display: flex;
   align-items: center;
@@ -1204,8 +1210,8 @@ section.active {
   background: var(--bg-light);
   border: 1px solid var(--line-color);
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 39px;
+  height: 39px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1233,8 +1239,8 @@ section.active {
 }
 
 .scroll-indicator-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   stroke: var(--text-muted);
   will-change: transform;
 }
