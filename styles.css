@@ -955,19 +955,19 @@ section.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #ffead3;
   font-family: 'InterVariable';
-  font-size: 13px;
-  line-height: 1.25;
+  font-size: clamp(11px, 1.8vw, 12px);
+  line-height: 1.2;
   letter-spacing: 0;
   text-transform: none;
   text-align: center;
 }
 
 .lightbox-hint-symbol {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -975,7 +975,7 @@ section.active {
 }
 
 .lightbox-hint-arrow {
-  font-size: 38px;
+  font-size: 30px;
   line-height: 1;
   font-weight: 300;
 }
@@ -992,23 +992,15 @@ section.active {
   position: relative;
 }
 
-.lightbox-hint-click::before,
 .lightbox-hint-click::after {
   content: '';
   position: absolute;
   border-radius: 50%;
 }
 
-.lightbox-hint-click::before {
-  width: 16px;
-  height: 16px;
-  background: #ffead3;
-  animation: hint-click-dot 1.25s ease-in-out infinite;
-}
-
 .lightbox-hint-click::after {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border: 1px solid rgba(255, 234, 211, 0.76);
   animation: hint-click-ring 1.25s ease-in-out infinite;
 }
@@ -1021,11 +1013,6 @@ section.active {
 @keyframes hint-arrow-right-bob {
   0%, 100% { transform: translateX(-5px); }
   50% { transform: translateX(7px); }
-}
-
-@keyframes hint-click-dot {
-  0%, 100% { transform: scale(0.92); opacity: 0.92; }
-  45% { transform: scale(0.62); opacity: 1; }
 }
 
 @keyframes hint-click-ring {
@@ -1597,7 +1584,7 @@ section.active {
     padding:
       calc(var(--spacing) + var(--lightbox-control-gap) + 38px)
       var(--spacing)
-      calc(var(--spacing) + var(--lightbox-control-gap) + var(--lightbox-counter-size));
+      calc(var(--spacing) + var(--lightbox-control-gap) + var(--lightbox-counter-size) + 10px);
   }
 
   .lightbox-story-bar {
@@ -1630,7 +1617,7 @@ section.active {
 
   .lightbox-counter {
     position: absolute;
-    bottom: 18px;
+    bottom: 28px;
     left: 50%;
     transform: translateX(-50%);
     border: none;

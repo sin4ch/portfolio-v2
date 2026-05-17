@@ -322,9 +322,9 @@ The biggest mobile issue is still likely the LCP image. LCP means **Largest Cont
 
 We improved this by making the first carousel image more important to the browser, but the image is still large because the design uses large photography.
 
-There was also a note about the profile picture being larger than the display size. That means the browser downloads more pixels than it needs for a tiny avatar. A future improvement would be to create a smaller avatar file, like `profile-picture-96.webp`, and use that for small profile icons.
+There was also a note about the profile picture being larger than the display size. That means the browser downloads more pixels than it needs for a tiny avatar. We fixed this by creating `profile-picture-128.webp` and using it for the small profile/contact icons.
 
-That would not replace the high-quality source everywhere. It would just avoid using a large image where a tiny one is enough.
+This does not delete the original high-quality `profile-picture.webp`. It just avoids using a large image where a tiny one is enough.
 
 ---
 

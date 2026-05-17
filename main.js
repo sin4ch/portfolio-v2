@@ -139,7 +139,7 @@ function createRoundedFavicon() {
     const favicon = document.getElementById('favicon');
     favicon.href = canvas.toDataURL('image/png');
   };
-  img.src = '/profile-picture.webp';
+  img.src = '/profile-picture-128.webp';
 }
 
 
