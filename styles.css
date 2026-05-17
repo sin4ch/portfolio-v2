@@ -99,6 +99,7 @@
 
 html {
   min-height: 100%;
+  min-height: 100dvh;
   overflow-x: hidden;
   scroll-behavior: smooth;
   touch-action: pan-y;
@@ -109,6 +110,7 @@ html {
 
 body {
   min-height: 100%;
+  min-height: 100dvh;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -1385,7 +1387,11 @@ section.active {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: var(--spacing) var(--spacing) 12px;
+    padding:
+      calc(var(--spacing) + env(safe-area-inset-top, 0px))
+      calc(var(--spacing) + env(safe-area-inset-right, 0px))
+      12px
+      calc(var(--spacing) + env(safe-area-inset-left, 0px));
     position: fixed;
     top: 0;
     left: 0;
@@ -1433,11 +1439,11 @@ section.active {
     grid-template-rows: 1fr;
     min-height: 100vh;
     min-height: 100dvh;
-    padding-top: calc(var(--spacing) + 44px + 64px);
+    padding-top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 44px + 64px);
   }
 
   body.home-active .layout {
-    padding-top: calc(var(--spacing) + 44px);
+    padding-top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 44px);
   }
 
   .nav-links .theme-toggle {
@@ -1455,7 +1461,11 @@ section.active {
     justify-content: flex-start;
     align-items: flex-start;
     gap: 24px;
-    padding: calc(var(--spacing) + 44px + 64px) var(--spacing) 72px;
+    padding:
+      calc(var(--spacing) + env(safe-area-inset-top, 0px) + 44px + 64px)
+      calc(var(--spacing) + env(safe-area-inset-right, 0px))
+      calc(72px + env(safe-area-inset-bottom, 0px))
+      calc(var(--spacing) + env(safe-area-inset-left, 0px));
     transform: translateX(100%);
     visibility: hidden;
     transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1), visibility 0.35s;

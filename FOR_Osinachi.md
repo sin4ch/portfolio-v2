@@ -1,142 +1,479 @@
-# Understanding the CSS & JS Restructuring of sin4.ch
+# Understanding sin4.ch
 
-## What This Project Is
+This file explains how the site works and why we made the recent technical decisions. The goal is not just "what changed", but how to think about the site from first principles.
 
-Your personal portfolio site (`sin4.ch`) is a single-file web application — all HTML, CSS, and JavaScript live inside one `index.html`. This restructuring didn't add or remove any features. Instead, it organized the existing code with clear section comments, a table of contents in both CSS and JS, and a handful of targeted optimizations that simplify code without changing behavior.
+The short version: `sin4.ch` is a small static portfolio site that behaves like an app. It has no backend server, no database, and no framework. The browser downloads HTML, CSS, JavaScript, images, and fonts, then the JavaScript makes the site interactive.
 
-Think of it like reorganizing a workshop: every tool is still there, nothing new was added, but now everything has a labeled drawer.
-
----
-
-## The Technical Architecture
-
-### Single-File Architecture
-
-The entire site is one `index.html` (~2560 lines). This is intentional for a portfolio site:
-
-- **No build step** — push to GitHub Pages and it's live
-- **No dependencies at runtime** — everything is inline, no module bundler, no framework
-- **Fast first paint** — the browser doesn't need to fetch separate CSS/JS files
-
-The tradeoff is that the file is large and needs clear internal organization, which is exactly what this restructuring provides.
-
-### CSS Structure (21 Sections)
-
-The CSS is organized top-to-bottom in cascade order (this matters — CSS rules later in the file override earlier ones for the same specificity). The sections are:
-
-1. **Reset & Custom Properties** — The `*` reset, `:root` CSS variables, and `::selection` styles. All your color tokens (`--bg-light`, `--text-dark`, etc.) live here. When you want to change a color site-wide, this is the one place to do it.
-
-2. **Base & Typography** — `html`/`body` sizing, font family, and the global transition rule that makes dark mode color changes animate smoothly across every element.
-
-3. **Cursor Follower** — The 12px circle that trails your mouse on desktop. Uses `mix-blend-mode: difference` so it's always visible against any background. Hidden on touch devices via `@media (hover: none)`.
-
-4. **Layout (Grid System)** — The 4-column CSS Grid that positions the sidebar and content area. The sidebar takes 1 column, content takes 3. This collapses to 2-column on tablet and 1-column on mobile.
-
-5. **Navigation** — The `.nav-links` container and `.nav-item` button styles. Nav items are `<button>` elements styled to look like text links (no border, no background).
-
-6. **Contact Bar** — The fixed bottom bar with your profile photo and social links. It stays pinned to the bottom on all screen sizes.
-
-7. **Page Sections & Transitions** — Each content section (`#about`, `#projects`, etc.) is absolutely positioned and stacked. Only the `.active` section is visible (`opacity: 1`). Transitions handle the fade between sections. The scrollbar styles are folded into this section too.
-
-8. **About Section & Typewriter** — The large intro text sizing and the typewriter cursor animation (`@keyframes blink`).
-
-9. **Content Items** — The reusable grid layout for projects, articles, talks, and experience entries. Each `.item` is a 2-column grid (date on left, content on right).
-
-10. **Theme Toggle & Dark Mode** — The small circular toggle button and the `body.dark-mode` class that overrides all CSS custom properties to dark values.
-
-11. **Custom Scrollbar & Scroll Indicator** — Section scrollbars that only appear on hover, plus the bouncing arrow indicator that shows when content is scrollable.
-
-12-16. **Links, Photo Carousel, Gallery Grid, Lightbox, Loading Screen** — Each is a self-contained visual component.
-
-17-21. **Responsive Breakpoints** — Tablet (≤1024px), mobile top bar, mobile (≤768px), small mobile (≤480px), and touch devices. Each breakpoint overrides earlier styles.
-
-### JS Structure (16 Sections)
-
-The JavaScript is organized by dependency order — things that need to exist first come first, then the features that use them:
-
-1. **Configuration & Constants** — All tweakable values at the top: `INITIAL_COUNT`, `CONCURRENCY`, `VALID_SECTIONS`, `EXTERNAL_REDIRECTS`, typewriter words/speeds. If you want to change how many images preload, which sections are valid URL routes, or where external links redirect, you edit these constants.
-
-2. **State Variables** — Mutable state like loading progress, gallery image arrays, and animation flags.
-
-3. **DOM References** — All `document.getElementById` / `querySelector` calls for elements used throughout the script.
-
-4. **Loading Screen & Progress** — The loading sequence has 3 phases:
-   - Phase 0: Wait for fonts, profile pic, and `gallery.json` to load
-   - Phase 1: Stream-download the 4 smallest gallery images with byte-level progress
-   - Phase 2: Background-load remaining images after the loading screen dismisses
-
-5. **Gallery Grid** — Bento-style masonry layout using independent columns. Images go into the shortest column each time (greedy bin-packing).
-
-6. **Initialization** — Calls `createRoundedFavicon()` and `initLoadingSequence()` to kick off the app.
-
-7. **Dynamic Favicon** — Generates a rounded favicon from the profile image using an offscreen canvas.
-
-8. **Section Navigation & Routing** — `showSection()` handles the single-page navigation. URL hash routing (`#projects`, `#gallery`, etc.) lets you deep-link to any section. External redirects (`sin4.ch/linkedin` → LinkedIn profile) are handled here too.
-
-9. **Scroll Indicator** — The bouncing arrow that appears when section content is scrollable.
-
-10. **Utility Helpers** — Small pure functions: `isMobileLayout()`, `getColumnCount()`, `getRenderedHeight()`.
-
-11. **Photo Carousel** — The horizontal auto-scrolling image strip. Uses a circular buffer approach — when the first image exits the left edge, it gets moved to the end of the track. Includes a consolidated `resize` handler that also updates the scroll indicator and rebuilds the gallery grid when column count changes.
-
-12. **Mobile Menu (Hamburger)** — The hamburger button and slide-in menu for mobile viewports (≤768px).
-
-13. **Theme Toggle** — Dark/light mode switch with `localStorage` persistence.
-
-14. **Cursor Follower** — The 12px circle that trails your mouse on desktop. Uses `mix-blend-mode: difference`. Hidden on touch devices.
-
-15. **Lightbox / Image Viewer** — Full-screen image viewer with keyboard, mouse, and touch swipe navigation.
-
-16. **Typewriter Effect** — The typing/deleting animation loop on the About page, plus the `typeWriter()` call that starts it.
+That simplicity is a strength. It also means every file we load matters, especially on mobile.
 
 ---
 
-## What Changed (and Why)
+## Current Architecture
 
-### CSS Optimizations
+The site now has four main hand-edited files:
 
-**Merged duplicate `.item-content` rules.** There were two separate rule blocks targeting `.item-content` — one setting `grid-column: 2` and another setting the flex layout. Having two blocks for the same selector works but is misleading — it looks like you intended different things. Merging them into one block makes the full set of styles immediately visible.
+- `index.html` contains the actual page markup and content.
+- `styles.css` contains all layout, typography, animation, responsive, and theme styles.
+- `main.js` handles routing, theme switching, scroll indicators, mobile menu, cursor follower, and general page behavior.
+- `gallery.js` handles gallery loading, the homepage carousel, the gallery grid, and the image viewer.
 
-**Merged section scrollbar into the main `section` block.** The scrollbar properties (`scrollbar-width: thin; scrollbar-color: transparent transparent;`) were in a separate `section {}` block 200 lines below the main one. Now they're in the same block. One selector, one place to read all its styles.
+There is also one important generated layer:
 
-**Removed redundant comments.** Comments like `/* Main layout */` before `.layout` or `/* Dark mode toggle button */` before `.theme-toggle` were saying what the code already said. The new section headers (`/* ── 4. Layout (Grid System) ── */`) provide that context at a higher level, so the small comments became noise.
+- `scripts/generate-route-pages.js` creates route folders like `projects/index.html`, `gallery/index.html`, and `writing/index.html`.
 
-### JS Optimizations
+That means `index.html` is still the main source of truth, but Google and browsers can also load real pages at clean URLs like:
 
-**Extracted `VALID_SECTIONS` as a shared constant.** The array `['about', 'projects', 'opensource', ...]` was duplicated identically in `handleInitialRoute()` and the `hashchange` listener. Now it's defined once at the top. If you add a new section, you update one line instead of hunting for two.
+- `https://sin4.ch/projects/`
+- `https://sin4.ch/opensource/`
+- `https://sin4.ch/writing/`
+- `https://sin4.ch/talks/`
+- `https://sin4.ch/gallery/`
+- `https://sin4.ch/experience/`
 
-**Removed dead `loadGalleryGrid()` function.** This function had an empty body (just a comment). It was called in `showSection()` when the gallery tab was shown, but did nothing. The actual gallery building happens in `buildGalleryGrid()` and `appendToGalleryGrid()`. Keeping a no-op function around is confusing — it looks like something should happen there.
+This is still a static site. We did not add a backend. We just made the static files smarter.
 
-**Simplified `toggleTheme()`.** `classList.toggle()` returns a boolean — `true` if the class was added, `false` if removed. The old code called `toggle()` then checked `classList.contains()` to decide what to save. The new code uses the return value directly:
-```js
-const isDark = document.body.classList.toggle('dark-mode');
-localStorage.setItem('theme', isDark ? 'dark' : 'light');
+---
+
+## Why We Split the JavaScript
+
+Earlier, almost everything lived inside one large file. That worked, but it made the code harder to reason about.
+
+The biggest split was moving gallery-related behavior into `gallery.js`.
+
+That makes sense because the gallery is a full feature area:
+
+- it loads image metadata from `gallery/gallery.json`
+- it builds the gallery grid
+- it powers the homepage carousel
+- it opens and controls the image viewer
+- it runs the story-style progress bar
+- it handles next, previous, pause, and tap zones
+
+Keeping all of that inside `main.js` made `main.js` feel like it was responsible for everything. Now `main.js` is closer to the "site shell", while `gallery.js` is closer to the "gallery system".
+
+The tradeoff is that there is one more JavaScript file to load. For this site, that tradeoff is worth it because the code is easier to read, debug, and improve.
+
+---
+
+## Generated Route Pages for SEO
+
+The site originally behaved like one page with different sections. That is good for interaction, but less clear for search engines.
+
+A human understands that "Projects", "Writing", and "Gallery" are different parts of the site. Google needs stronger clues.
+
+So we added generated route pages.
+
+The generator takes the main `index.html` and creates copies for each route:
+
+- `projects/index.html`
+- `opensource/index.html`
+- `writing/index.html`
+- `talks/index.html`
+- `gallery/index.html`
+- `experience/index.html`
+
+Each generated page gets its own:
+
+- `<title>`
+- meta description
+- canonical URL
+- Open Graph URL
+- Twitter title and description
+
+This helps Google understand that `/projects/` is a real page about projects, not just the homepage wearing a different mask.
+
+The advantage is better SEO structure. It also gives Google more evidence for sitelinks, which are those extra subpage links that can appear under a search result.
+
+The tradeoff is that generated pages can drift if we forget to regenerate them. The safe workflow is:
+
+1. Edit `index.html`.
+2. Run `node scripts/generate-route-pages.js`.
+3. Test the homepage and route pages.
+4. Commit both the source file and generated route files.
+
+The generated files should not be manually edited. They are output files. The generator is the repeatable source of truth.
+
+---
+
+## Why URLs Have Trailing Slashes
+
+The route pages are folders with an `index.html` inside them.
+
+For example:
+
+```text
+projects/index.html
 ```
-Same behavior, half the lines. This pattern — using the return value of a method that already tells you what happened — is something to reach for whenever you find yourself immediately re-checking state after changing it.
 
-**Simplified carousel visibility toggle.** The old code used 6 lines with `if/else` and manual `add`/`remove` calls. `classList.toggle(className, force)` with a boolean second argument does the same thing:
-```js
-carouselWrapper.classList.toggle('visible', targetId === 'about');
-carouselWrapper.classList.toggle('hidden', targetId !== 'about');
+That naturally maps to:
+
+```text
+https://sin4.ch/projects/
 ```
-The second argument forces the class on (`true`) or off (`false`).
 
-**Extracted `EXTERNAL_REDIRECTS` to the config section.** The redirect map (`linkedin` → LinkedIn URL, `github` → GitHub URL, etc.) was defined inside `handleInitialRoute()`. It's a static lookup table, not runtime state — it belongs with the other constants at the top so you can see all configurable behavior in one place.
+The trailing slash means "load the index file inside this folder".
 
-**Removed redundant cursor follower hover listeners.** There was a second block of hover listeners specifically for `.lightbox-close, .lightbox-prev, .lightbox-next` — but these are all `<button>` elements, already captured by `document.querySelectorAll('a, button, .theme-toggle')` a few lines above. The second block was doing nothing that the first block wasn't already doing.
+Locally, Vite may sometimes treat `/projects` and `/projects/` a little differently. GitHub Pages is also folder-based, so `/projects/` is the more correct static-site URL.
 
-**Consolidated two `resize` handlers into one.** There were two separate `window.addEventListener('resize', ...)` calls — one for the scroll indicator and one for the carousel/gallery grid. Now there's one handler that calls `updateScrollIndicator()`, `positionCarousel()`, and the column-count check for gallery grid rebuilds.
-
-**Moved configuration to the top.** `CONCURRENCY`, typewriter settings, `VALID_SECTIONS`, and `EXTERNAL_REDIRECTS` were scattered throughout the file — some inside functions, some at the bottom. Now they're all in one place at the top. Anyone tweaking the site's behavior starts reading from line 1.
+That is why the app navigation prefers trailing-slash routes.
 
 ---
 
-## Lessons and Patterns
+## Why Root-Relative Asset Paths Matter
 
-### Generated Route Pages for SEO
+This was an important bug.
 
-The site is still one interactive app, but it now has real static entry pages for the main routes:
+When the site is loaded from the homepage, a relative image path like this can work:
 
+```html
+<img src="profile-picture.webp">
+```
+
+But if the browser hard-refreshes on `/opensource/`, that same relative path means:
+
+```text
+/opensource/profile-picture.webp
+```
+
+That file does not exist.
+
+That is why the profile photo, gallery, and carousel disappeared after a hard refresh on a section route.
+
+The fix was to use root-relative paths:
+
+```html
+<img src="/profile-picture.webp">
+```
+
+This always means:
+
+```text
+https://sin4.ch/profile-picture.webp
+```
+
+No matter which route the user is on.
+
+The advantage is reliability. Every route can load the same assets correctly.
+
+The tradeoff is that the site now assumes it is hosted at the root of a domain, like `sin4.ch`. If the site were hosted inside a subfolder like `example.com/portfolio/`, root-relative paths would need a different strategy.
+
+For this site, root-relative paths are the right choice.
+
+---
+
+## Self-Hosted Fonts
+
+The site uses local font files now instead of relying on external font servers.
+
+The fonts live in `/fonts`.
+
+This matters because external font loading can create a chain of network work:
+
+1. Ask another domain for CSS.
+2. That CSS points to font files.
+3. The browser asks another domain for those font files.
+4. Text rendering waits or shifts depending on how the fonts arrive.
+
+Self-hosting reduces that chain. The browser gets the fonts from the same site as everything else.
+
+The advantage is more predictable loading and fewer third-party requests.
+
+The tradeoff is that the repository is larger because it contains font files. Also, fonts are still real files that must be downloaded, so we should only keep the weights and styles we actually use.
+
+---
+
+## Mobile Carousel Performance
+
+The homepage carousel is visually important, but images are expensive.
+
+On mobile, the carousel images are large on screen, so we did not switch them to thumbnails. That would have helped performance, but it could make the first impression look worse.
+
+Instead, we kept full-quality carousel images and changed when they load.
+
+The mobile carousel now starts with fewer images first. It begins with 8 images, then expands toward the larger carousel set after the page has settled.
+
+This means the first load has less work to do.
+
+The first visible carousel image is also marked as important:
+
+- it is not lazy-loaded
+- it gets high fetch priority
+- it has explicit width and height
+
+That helps because the first visible carousel image can become the Largest Contentful Paint image. In plain language: PageSpeed may judge the page by how quickly that large visible image appears.
+
+The advantage is that the page becomes usable sooner, especially on slower phones.
+
+The tradeoff is that not every carousel image is available immediately in the first moment. That is fine because the user can only see a few images at once anyway.
+
+---
+
+## Gallery Grid Performance
+
+The gallery grid uses lazy loading.
+
+That means gallery images do not all fight to download at once.
+
+The browser can focus on what is visible first, then load more as needed. This is much kinder to low-end devices because image decoding is expensive. Downloading images is only one part of the cost; turning image files into pixels on screen also takes CPU and memory.
+
+The gallery viewer still uses full-quality images. That is intentional. When someone taps an image to inspect it, quality matters more than saving a little bandwidth.
+
+The current decision is:
+
+- Gallery grid: can be lighter and lazier.
+- Homepage carousel: full quality, but staged.
+- Image viewer: full quality.
+
+That gives us performance where it matters without making the main visual experience feel cheap.
+
+---
+
+## Story-Style Gallery Viewer
+
+The gallery viewer now behaves more like Stories.
+
+The thin loading line at the top is called a **story progress bar**. It shows how long before the viewer moves to the next image.
+
+The viewer also supports:
+
+- tap left for previous
+- tap right for next
+- tap center to pause or play
+- an onboarding hint overlay
+- a close button
+
+The progress bar and close button are aligned to the page margins so they feel like part of the site, not random floating controls.
+
+The advantage is that browsing photos feels faster and more natural on mobile.
+
+The tradeoff is complexity. A normal image viewer with two buttons is much simpler. This viewer has timers, pause state, tap zones, hints, progress animation, and route/menu interactions. That is why keeping gallery logic in `gallery.js` matters.
+
+---
+
+## The Android Chrome Navigation Pill Fix
+
+This is the Samsung change that worked.
+
+On Android, Chrome has a bottom browser/system area where the navigation pill lives. A website cannot fully command that area like an app can. We cannot simply say, "make the Android navigation pill transparent."
+
+What we can do is make the page behave more edge-to-edge so the browser has the right background color to blend with.
+
+The change had three important pieces.
+
+First, the viewport meta tag now includes:
+
+```html
+viewport-fit=cover
+```
+
+That tells supported browsers that the page is allowed to extend into the safe-area edges of the screen.
+
+Second, the root page background is consistent:
+
+```css
+html,
+body {
+  min-height: 100dvh;
+}
+```
+
+This helps the page fill the dynamic mobile viewport instead of leaving odd browser-colored gaps.
+
+Third, mobile fixed elements use safe-area variables:
+
+```css
+env(safe-area-inset-top)
+env(safe-area-inset-right)
+env(safe-area-inset-bottom)
+env(safe-area-inset-left)
+```
+
+These variables let the browser tell the page, "this device has an edge area you should respect."
+
+The result is that the site background can blend better with Chrome's bottom navigation area on your Samsung.
+
+The advantage is a more native, polished mobile feel.
+
+The tradeoff is that this behavior depends on the browser, phone, and operating system. Android Chrome, Samsung Internet, and iOS Safari may not behave identically. Safe-area changes must be tested on real devices because desktop emulation cannot perfectly reproduce the phone browser's system UI.
+
+The key lesson: we did not directly control the Android pill. We made the page's edges correct enough that Chrome could blend the system area nicely.
+
+---
+
+## PageSpeed Results and What They Mean
+
+The mobile PageSpeed score improved from 63 to 70 after the performance work.
+
+That is progress, but PageSpeed is not a perfect truth machine. It is a useful pressure test.
+
+The good signs:
+
+- Total Blocking Time is low.
+- Cumulative Layout Shift is 0.
+- Accessibility is high.
+- Best Practices is 100.
+- SEO is 100.
+
+That means the page is not doing a lot of long JavaScript work, and the layout is stable.
+
+The remaining performance pressure mostly comes from images and caching.
+
+The biggest mobile issue is still likely the LCP image. LCP means **Largest Contentful Paint**. It is the time it takes for the biggest important visible thing to appear. On this site, that is often a carousel image.
+
+We improved this by making the first carousel image more important to the browser, but the image is still large because the design uses large photography.
+
+There was also a note about the profile picture being larger than the display size. That means the browser downloads more pixels than it needs for a tiny avatar. A future improvement would be to create a smaller avatar file, like `profile-picture-96.webp`, and use that for small profile icons.
+
+That would not replace the high-quality source everywhere. It would just avoid using a large image where a tiny one is enough.
+
+---
+
+## GitHub Pages Cache TTL
+
+PageSpeed may complain that some files have a short cache lifetime.
+
+Cache lifetime means: how long the browser is allowed to keep a file before checking if it changed.
+
+Long caching is good for performance because repeat visitors do not need to re-download the same files.
+
+The limitation is that GitHub Pages does not give us full control over cache headers.
+
+That means we can optimize the files, but we cannot fully tune how GitHub Pages tells browsers to cache them.
+
+A possible future move is Cloudflare Pages. It has a free tier and can give more control over caching with a `_headers` file.
+
+The tradeoff is platform complexity. GitHub Pages is simple. Cloudflare Pages gives more control, but adds another hosting system to understand and maintain.
+
+---
+
+## Clean Routes Versus Hash Routes
+
+The site used to rely more on hash URLs like:
+
+```text
+/#projects
+```
+
+Now it uses clean routes like:
+
+```text
+/projects/
+```
+
+Clean routes look better, are easier to share, and are more natural for SEO.
+
+The tradeoff is that clean routes require static files or server fallback support. Because this is GitHub Pages, we solved it with generated folder pages.
+
+This is why route generation and root-relative asset paths are connected. Once route pages exist, hard-refresh behavior matters.
+
+---
+
+## The Current Loading Sequence
+
+The loading system is no longer the old stream-based design described in earlier notes.
+
+The current loading flow is simpler:
+
+1. Load `gallery/gallery.json`.
+2. Pick a small initial set of gallery images.
+3. Decode those first images so the page can show real visuals.
+4. Hide the loading screen.
+5. Build the visible gallery and carousel experience.
+6. Load the remaining gallery images later in idle batches.
+
+"Idle batches" means the browser waits for calmer moments before doing more work.
+
+That helps smoothness because the site avoids trying to do everything at the same time.
+
+The advantage is that the first experience appears faster and with less CPU pressure.
+
+The tradeoff is that the gallery becomes complete progressively rather than instantly. That is usually the right tradeoff for image-heavy pages.
+
+---
+
+## Why Some Animations Were Tuned for Smoothness
+
+Low-end devices struggle when too many things animate, resize, decode images, or repaint at the same time.
+
+The main rule is: animate cheap properties where possible.
+
+Good properties:
+
+- `transform`
+- `opacity`
+
+More expensive properties:
+
+- width
+- height
+- top
+- left
+- layout-heavy spacing changes
+
+This is why gallery hover zoom now scales the image inside its existing box instead of expanding the whole image tile. Expanding the tile can disturb surrounding layout. Scaling inside the box is visually smoother and cheaper.
+
+We also avoid forcing the carousel to reload or rebuild when it does not need to.
+
+---
+
+## Reduced Motion
+
+The site respects `prefers-reduced-motion`.
+
+This is a browser/system setting. Some people enable it because animations can cause discomfort. It also helps on devices where heavy animation feels bad.
+
+When reduced motion is active, the site should avoid unnecessary animation.
+
+The advantage is accessibility and performance.
+
+The tradeoff is that some motion-driven personality becomes quieter for those users. That is the correct tradeoff because user comfort comes first.
+
+---
+
+## How to Think About Future Refactors
+
+The site is already much cleaner than where it started, but the next good refactors should be boring in the best way.
+
+Good future refactors:
+
+- keep route generation reliable
+- keep gallery code readable
+- document why complex interactions exist
+- reduce image waste where quality does not matter
+- keep SEO-critical content in HTML
+
+Be careful with moving content lists into JSON.
+
+Projects, writing, open source, talks, and experience are content. If they stay in HTML, search engines and link preview tools can read them immediately.
+
+If they move into JSON and JavaScript renders them later, the site may still work for humans, but SEO becomes more dependent on JavaScript execution.
+
+That does not mean JSON is always bad. It means content rendering is an SEO-sensitive decision.
+
+For this portfolio, keeping the main content in HTML is the safer choice.
+
+---
+
+## Practical Workflow
+
+When changing shared site markup:
+
+1. Edit `index.html`.
+2. Regenerate route pages:
+
+```bash
+node scripts/generate-route-pages.js
+```
+
+3. Test:
+
+```bash
+bunx vite --host 0.0.0.0 --port 4173
+```
+
+4. Check these routes:
+
+- `/`
 - `/projects/`
 - `/opensource/`
 - `/writing/`
@@ -144,82 +481,28 @@ The site is still one interactive app, but it now has real static entry pages fo
 - `/gallery/`
 - `/experience/`
 
-These files are generated by `scripts/generate-route-pages.js`. The important idea is that `index.html` remains the source of truth for the actual page markup. The generator copies that markup into each route folder, then swaps only the route-specific SEO details: title, description, canonical URL, `og:url`, and social preview text.
+5. Hard-refresh a route page.
+6. Test mobile layout.
+7. Commit the source and generated files together.
 
-This avoids the dangerous version of duplication where you manually maintain seven separate HTML files. Instead, you edit the main `index.html`, run the generator, and every route gets the same current layout/content with its own search-friendly label.
-
-The sitemap is generated by the same script so Google can discover the clean routes directly. This does not guarantee Google will show sitelinks, but it gives Google better evidence that the route pages are real, distinct pages rather than just one homepage with JavaScript state.
-
-The tradeoff is discipline: whenever the shared HTML changes, run the generator before committing. Otherwise, the route copies can drift from the homepage.
-
-### Why Section Comments Matter
-
-When a file grows past ~200 lines, you start spending more time *finding* code than *reading* it. Section headers with a table of contents at the top solve this:
-
-- **TOC** → scan the file's structure in 10 seconds
-- **Section headers** → jump to any section with Ctrl+F
-- **Numbered sections** → cross-reference between TOC and code
-
-The specific format used here (`/* ── N. Section Name ── */`) was chosen because:
-- The `──` line characters make headers visually distinct from regular comments
-- Numbers let you find sections by searching `── 7.` instead of remembering exact names
-- Consistent formatting means your eyes learn where to look
-
-### CSS Cascade Order Matters
-
-We never reordered any CSS rules. This is intentional. In CSS, when two rules have the same specificity, the one that appears later wins. Reordering can silently break styles in ways that are hard to debug — something might look fine on desktop but break on a specific mobile width because a media query override now comes before the rule it's supposed to override.
-
-The safe approach: add comments and structure around the existing order. Only reorder if you fully understand the specificity chain and test every breakpoint.
-
-### The Return Value Pattern
-
-`classList.toggle()` returns a boolean. `Array.prototype.push()` returns the new length. `Map.prototype.set()` returns the Map itself. Many DOM and collection methods return useful values that people ignore by habit. Before writing a separate check after a mutation, look at what the mutation method returns.
-
-### Single Source of Truth for Constants
-
-The `VALID_SECTIONS` duplication is a classic bug waiting to happen. You add a new section to one location, forget the other, and the hashchange listener silently falls back to "about" for URLs that `handleInitialRoute()` handles fine. The fix is always the same: extract to a single constant and reference it everywhere.
-
-### Dead Code Has a Cost
-
-`loadGalleryGrid()` was an empty function. It wasn't hurting performance, but it was hurting readability. Someone reading the code would see `loadGalleryGrid()` called in `showSection()` and think "this does something when you switch to the gallery tab." They'd search for the definition, find an empty body, and wonder if it's a bug or intentional. Removing it eliminates that confusion.
-
-The rule: if a function does nothing and isn't a placeholder for upcoming work, delete it. If it IS a placeholder, add a TODO comment explaining what it will do and when.
-
-### The `classList.toggle(name, force)` Pattern
-
-This is one of the most underused DOM APIs. Instead of:
-```js
-if (condition) {
-  element.classList.add('visible');
-  element.classList.remove('hidden');
-} else {
-  element.classList.remove('visible');
-  element.classList.add('hidden');
-}
-```
-
-You can write:
-```js
-element.classList.toggle('visible', condition);
-element.classList.toggle('hidden', !condition);
-```
-
-The second argument (`force`) is a boolean: `true` means "add the class", `false` means "remove it". This works in all modern browsers.
+The most important habit is this: when one file generates other files, commit the source and the generated output in the same logical change.
 
 ---
 
-## How the Loading Sequence Works (Deep Dive)
+## The Big Engineering Lesson
 
-This is one of the more interesting parts of the codebase. The loading screen shows a percentage counter that reflects actual download progress of gallery images:
+Most of the work on this site was not about adding flashy features. It was about removing hidden friction.
 
-1. **Fonts, JSON, and profile pic load first** (Phase 0) — these are small and fast, so no progress bar is needed. The loading screen isn't even visible yet.
+The hard-refresh bug was a path problem.
 
-2. **Once those are ready, the loading screen fades in** and starts downloading the 4 smallest gallery images using the Fetch API's `ReadableStream` (Phase 1). As bytes arrive, `onBytes()` updates the percentage.
+The SEO route work was a discoverability problem.
 
-3. **The percentage counter animates smoothly** using `requestAnimationFrame`. Instead of jumping from 45% to 67%, it eases toward the target. The formula `Math.max(0.3, diff * 0.12)` means: move at least 0.3% per frame, but speed up when far behind the target.
+The PageSpeed work was a loading priority problem.
 
-4. **After hitting 100%, there's a deliberate pause** before the loading screen slides up and the main content slides in (using CSS `transform: translateY`).
+The Samsung navigation pill improvement was an edge-of-viewport problem.
 
-5. **Remaining images load in the background** (Phase 2) with 4 concurrent download chains. As each image loads, it's appended to both the gallery grid and the carousel track.
+The gallery viewer work was an interaction design problem.
 
-This gives the user a responsive, accurate loading experience without blocking them from seeing content.
+The repeated pattern is: name the actual problem first, then choose the smallest technical change that addresses it without making the site harder to maintain.
+
+That is how good frontend engineering usually feels. Not magic. Just careful decisions stacked together until the site feels effortless.
