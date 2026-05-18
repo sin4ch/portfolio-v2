@@ -211,10 +211,22 @@ function getFocusableMenuElements() {
   return sidebar.querySelectorAll('button.nav-item:not([data-target="home"]), button.theme-toggle, .mobile-menu-contact a');
 }
 
+function repaintMobileMenuText() {
+  const navLinks = sidebar.querySelector('.nav-links');
+  if (!navLinks) return;
+  navLinks.classList.add('menu-text-repaint');
+  navLinks.offsetHeight;
+  requestAnimationFrame(() => {
+    navLinks.classList.remove('menu-text-repaint');
+  });
+}
+
 function openMobileMenu() {
   sidebar.classList.add('menu-open');
   hamburger.classList.add('open');
   hamburger.setAttribute('aria-label', 'Close menu');
+  repaintMobileMenuText();
+  window.setTimeout(repaintMobileMenuText, 380);
   const firstNav = sidebar.querySelector('button.nav-item:not([data-target="home"])');
   if (firstNav) firstNav.focus();
   document.addEventListener('keydown', handleMenuFocusTrap);

@@ -46,7 +46,7 @@
 @font-face {
   font-family: 'InterVariable';
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 300 600;
   font-display: swap;
   src: url('/fonts/InterVariable.woff2') format('woff2');
 }
@@ -54,7 +54,7 @@
 @font-face {
   font-family: 'InterVariable';
   font-style: italic;
-  font-weight: 100 900;
+  font-weight: 300 600;
   font-display: swap;
   src: url('/fonts/InterVariable-Italic.woff2') format('woff2');
 }
@@ -1485,6 +1485,12 @@ section.active {
     align-items: flex-start;
     width: 100%;
     font-family: 'InterVariable';
+  }
+
+  .nav-links.menu-text-repaint {
+    opacity: 0.999;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 
   .nav-item {
