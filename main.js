@@ -444,7 +444,7 @@ const LIGHT_THEME_COLOR = '#ffead3';
 const DARK_THEME_COLOR = '#121212';
 
 function updateSystemThemeColor(isDark) {
-  const themeColor = document.querySelector('meta[name="theme-color"]:not([media])');
+  const themeColor = document.getElementById('system-theme-color');
   if (themeColor) {
     themeColor.setAttribute('content', isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
   }

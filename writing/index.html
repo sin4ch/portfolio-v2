@@ -32,9 +32,13 @@
   <meta name="robots" content="index, follow">
 
   <!-- Theme Colors -->
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffead3">
-  <meta name="theme-color" content="#ffead3">
+  <meta id="system-theme-color" name="theme-color" content="#ffead3">
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+      document.getElementById('system-theme-color').setAttribute('content', '#121212');
+    }
+  </script>
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -69,11 +73,6 @@
   <title>Writing - Osinachi Okpara</title>
   <link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/GeistMono-Regular.ttf" as="font" type="font/ttf" crossorigin>
-  <script>
-    if (localStorage.getItem('theme') === 'dark') {
-      document.documentElement.classList.add('dark-mode');
-    }
-  </script>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
