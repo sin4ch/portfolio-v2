@@ -289,6 +289,12 @@ navItems.forEach(item => {
   });
 });
 
+document.querySelectorAll('.home-work-link').forEach(link => {
+  link.addEventListener('click', () => {
+    openMobileMenu();
+  });
+});
+
 window.addEventListener('popstate', (event) => {
   if (event.state && event.state.section) {
     showSection(event.state.section, false);
@@ -368,15 +374,12 @@ function positionCarousel() {
     const isHomeActive = homeSection && homeSection.classList.contains('active');
     if (!isHomeActive) { wrapper.style.display = 'none'; return; }
     const homeIntro = document.querySelector('.home-intro');
-    const homeContactLinks = document.querySelector('.home-contact-links');
+    const homeWorkLink = document.querySelector('.home-work-link');
     if (!homeIntro) return;
-    const anchorEl = homeContactLinks || homeIntro;
+    const anchorEl = homeWorkLink || homeIntro;
     const anchorRect = anchorEl.getBoundingClientRect();
-    const fontSize = parseFloat(getComputedStyle(homeIntro).fontSize);
-    const oneLineHeight = fontSize * 1.6;
-    const maxIntroBottom = anchorRect.top + Math.min(anchorRect.height, window.innerHeight * 0.5 + oneLineHeight);
-    const topPos = maxIntroBottom + (oneLineHeight * 0.45);
     const bottomInset = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--spacing')) || 24;
+    const topPos = anchorRect.bottom + bottomInset;
     const availableHeight = window.innerHeight - topPos - bottomInset;
     if (availableHeight < 60) { wrapper.style.display = 'none'; return; }
     wrapper.style.display = '';

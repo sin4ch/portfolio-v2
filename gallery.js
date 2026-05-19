@@ -351,36 +351,98 @@
     }
     let lastTimestamp = 0;
     let scrollPosition = carousel.scrollLeft;
-    const speed = 20;
+    let isTouchScrolling = false;
+    let touchResumeTimer = null;
+    const speed = 48;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function getSlideWidth(slide) {
+      return slide ? slide.offsetWidth + 8 : 0;
+    }
+
+    function prependLastSlide() {
+      const last = track.lastElementChild;
+      const first = track.firstElementChild;
+      if (!last || !first || last === first) return;
+      const lastWidth = getSlideWidth(last);
+      if (lastWidth <= 0) return;
+      track.insertBefore(last, first);
+      scrollPosition += lastWidth;
+      carousel.scrollLeft = scrollPosition;
+    }
+
+    function addBackwardScrollBuffer(count = 3) {
+      let addedWidth = 0;
+      for (let i = 0; i < count; i++) {
+        const last = track.lastElementChild;
+        const first = track.firstElementChild;
+        if (!last || !first || last === first) break;
+        const lastWidth = getSlideWidth(last);
+        if (lastWidth <= 0) break;
+        track.insertBefore(last, first);
+        addedWidth += lastWidth;
+      }
+      if (addedWidth > 0) {
+        scrollPosition += addedWidth;
+        carousel.scrollLeft = scrollPosition;
+      }
+    }
+
+    function wrapForwardIfNeeded() {
+      const first = track.firstElementChild;
+      if (!first) return;
+      const firstWidth = getSlideWidth(first);
+      if (firstWidth > 0 && scrollPosition >= firstWidth) {
+        track.appendChild(first);
+        scrollPosition -= firstWidth;
+        carousel.scrollLeft = scrollPosition;
+      }
+    }
 
     function tick(timestamp) {
       if (!lastTimestamp) lastTimestamp = timestamp;
       const deltaMs = Math.min(timestamp - lastTimestamp, 100);
       lastTimestamp = timestamp;
       const wrapperVisible = carousel.closest('.photo-carousel-wrapper')?.classList.contains('visible');
-      if (!document.hidden && wrapperVisible && !reducedMotion && speed > 0) {
+      if (!document.hidden && wrapperVisible && !reducedMotion && !isTouchScrolling && speed > 0) {
         scrollPosition += speed * (deltaMs / 1000);
         carousel.scrollLeft = scrollPosition;
-        const first = track.firstElementChild;
-        if (first) {
-          const firstWidth = first.offsetWidth + 8;
-          if (firstWidth > 0 && scrollPosition >= firstWidth) {
-            track.appendChild(first);
-            scrollPosition -= firstWidth;
-            carousel.scrollLeft = scrollPosition;
-          }
-        }
+        wrapForwardIfNeeded();
       }
       carouselAnimationFrame = requestAnimationFrame(tick);
     }
 
+    requestAnimationFrame(() => addBackwardScrollBuffer());
     carouselAnimationFrame = requestAnimationFrame(tick);
+    carousel.addEventListener('touchstart', () => {
+      isTouchScrolling = true;
+      window.clearTimeout(touchResumeTimer);
+      if (carousel.scrollLeft < 12) addBackwardScrollBuffer();
+    }, { passive: true });
+    function resumeAfterTouchScrollSettles() {
+      window.clearTimeout(touchResumeTimer);
+      touchResumeTimer = window.setTimeout(() => {
+        scrollPosition = carousel.scrollLeft;
+        isTouchScrolling = false;
+        lastTimestamp = 0;
+      }, 260);
+    }
+    carousel.addEventListener('touchend', resumeAfterTouchScrollSettles, { passive: true });
+    carousel.addEventListener('touchcancel', () => {
+      window.clearTimeout(touchResumeTimer);
+      touchResumeTimer = window.setTimeout(() => {
+        scrollPosition = carousel.scrollLeft;
+        isTouchScrolling = false;
+        lastTimestamp = 0;
+      }, 260);
+    }, { passive: true });
     carousel.addEventListener('wheel', () => {
       scrollPosition = carousel.scrollLeft;
     }, { passive: true });
     carousel.addEventListener('scroll', () => {
       scrollPosition = carousel.scrollLeft;
+      if (scrollPosition < 12) prependLastSlide();
+      if (isTouchScrolling) resumeAfterTouchScrollSettles();
     }, { passive: true });
   }
 

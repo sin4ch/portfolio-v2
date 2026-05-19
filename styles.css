@@ -645,7 +645,6 @@ section.active {
   border-radius: 2px;
   font-size: 12px;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 #talks .item-meta,
@@ -702,25 +701,30 @@ section.active {
   line-height: 1.35;
 }
 
-.home-contact-links {
+.home-work-link {
   display: none;
-  justify-content: flex-start;
-  gap: 10px;
-  width: min(760px, 100%);
-  margin-top: 8px;
-  color: var(--text-muted);
-}
-
-.home-contact-links .contact-icon {
-  width: 18px;
-  height: 18px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.home-contact-links .contact-icon:hover {
+  align-self: flex-start;
+  margin-top: -2px;
+  border: 1px solid var(--text-dark);
+  border-radius: 16px;
+  background: transparent;
   color: var(--text-dark);
-  text-decoration: none;
+  font-family: 'InterVariable';
+  font-size: 12px;
+  line-height: 1.1;
+  cursor: pointer;
+  padding: 5px 8px;
+}
+
+.home-work-link span {
+  display: inline-block;
+  margin-left: 0.55em;
+  font-size: 0.9em;
+  transition: transform 0.16s ease;
+}
+
+.home-work-link:hover span {
+  transform: translateX(3px);
 }
 
 /* ============================================
@@ -1575,17 +1579,9 @@ section.active {
     line-height: 1.12 !important;
   }
 
-  .home-contact-links {
-    display: flex;
-    width: 100%;
-    margin-top: -2px;
-    gap: 8px;
-  }
-
-  .home-contact-links .contact-icon {
-    width: 24px;
-    height: 24px;
-    padding: 4px;
+  .home-work-link {
+    display: inline-flex;
+    align-items: center;
   }
 
   .section-description {
