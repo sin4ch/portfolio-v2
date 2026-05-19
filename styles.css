@@ -1402,10 +1402,13 @@ section.active {
     scrollbar-width: thin;
   }
 
+  html.home-active,
   body.home-active {
     overflow: hidden;
     height: 100vh;
     height: 100dvh;
+    overscroll-behavior: none;
+    touch-action: none;
   }
 
   .mobile-top-bar {

@@ -175,7 +175,9 @@ function showSection(targetId, updateUrl = true) {
     carouselWrapper.classList.toggle('visible', targetId === 'home');
     carouselWrapper.classList.toggle('hidden', targetId !== 'home');
   }
-  document.body.classList.toggle('home-active', targetId === 'home');
+  const isHome = targetId === 'home';
+  document.body.classList.toggle('home-active', isHome);
+  document.documentElement.classList.toggle('home-active', isHome);
   positionCarousel();
   updateScrollIndicator();
 }
