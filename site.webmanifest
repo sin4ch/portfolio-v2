@@ -17,6 +17,6 @@
   ],
   "theme_color": "#121212",
   "background_color": "#121212",
-  "display": "fullscreen",
-  "display_override": ["fullscreen"]
+  "display": "standalone",
+  "display_override": ["standalone"]
 }
