@@ -106,6 +106,7 @@ html {
   scrollbar-width: thin;
   scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
+  color-scheme: light;
 }
 
 body {
@@ -1168,6 +1169,7 @@ section.active {
   --item-secondary: #b8a58e;
   --text-muted-70: #7d7260;
   --line-color: #3d3d3d;
+  color-scheme: dark;
 }
 
 ::view-transition-old(root),

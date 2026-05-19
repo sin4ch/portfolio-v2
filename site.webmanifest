@@ -1,6 +1,8 @@
 {
   "name": "Osinachi Okpara",
   "short_name": "sin4.ch",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -15,5 +17,6 @@
   ],
   "theme_color": "#121212",
   "background_color": "#121212",
-  "display": "standalone"
+  "display": "standalone",
+  "display_override": ["standalone"]
 }

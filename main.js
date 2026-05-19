@@ -438,9 +438,20 @@ document.addEventListener('visibilitychange', () => {
 /* ============================================
    9. THEME TOGGLE
    ============================================ */
+const LIGHT_THEME_COLOR = '#ffead3';
+const DARK_THEME_COLOR = '#121212';
+
+function updateSystemThemeColor(isDark) {
+  const themeColor = document.querySelector('meta[name="theme-color"]:not([media])');
+  if (themeColor) {
+    themeColor.setAttribute('content', isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
+  }
+}
+
 function applyThemeToggle() {
   const isDark = document.body.classList.toggle('dark-mode');
   document.documentElement.classList.toggle('dark-mode', isDark);
+  updateSystemThemeColor(isDark);
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }
 
@@ -452,6 +463,7 @@ if (localStorage.getItem('theme') === 'dark') {
   document.body.classList.add('dark-mode');
   document.documentElement.classList.add('dark-mode');
 }
+updateSystemThemeColor(document.documentElement.classList.contains('dark-mode'));
 
 const themeToggle = document.getElementById('themeToggle');
 const themeToggleMobile = document.getElementById('themeToggleMobile');
