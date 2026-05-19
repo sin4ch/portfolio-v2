@@ -702,6 +702,27 @@ section.active {
   line-height: 1.35;
 }
 
+.home-contact-links {
+  display: none;
+  justify-content: flex-start;
+  gap: 10px;
+  width: min(760px, 100%);
+  margin-top: 8px;
+  color: var(--text-muted);
+}
+
+.home-contact-links .contact-icon {
+  width: 18px;
+  height: 18px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-contact-links .contact-icon:hover {
+  color: var(--text-dark);
+  text-decoration: none;
+}
+
 /* ============================================
    8. GALLERY
    ============================================ */
@@ -812,15 +833,11 @@ section.active {
   scrollbar-width: none;
   -ms-overflow-style: none;
   touch-action: pan-x;
-  cursor: grab;
+  user-select: none;
 }
 
 .photo-carousel::-webkit-scrollbar {
   display: none;
-}
-
-.photo-carousel.is-dragging {
-  cursor: grabbing;
 }
 
 .photo-carousel-track {
@@ -1556,6 +1573,19 @@ section.active {
     --home-role-size: clamp(16px, 4.4vw, 20px);
     margin-top: 0;
     line-height: 1.12 !important;
+  }
+
+  .home-contact-links {
+    display: flex;
+    width: 100%;
+    margin-top: -2px;
+    gap: 8px;
+  }
+
+  .home-contact-links .contact-icon {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
   }
 
   .section-description {

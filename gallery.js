@@ -350,28 +350,16 @@
       carouselAnimationFrame = null;
     }
     let lastTimestamp = 0;
-    let isPaused = false;
     let scrollPosition = carousel.scrollLeft;
-    let resumeTimer = null;
     const speed = 20;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    function pauseTemporarily(duration = 1400) {
-      isPaused = true;
-      window.clearTimeout(resumeTimer);
-      resumeTimer = window.setTimeout(() => {
-        scrollPosition = carousel.scrollLeft;
-        isPaused = false;
-        lastTimestamp = 0;
-      }, duration);
-    }
 
     function tick(timestamp) {
       if (!lastTimestamp) lastTimestamp = timestamp;
       const deltaMs = Math.min(timestamp - lastTimestamp, 100);
       lastTimestamp = timestamp;
       const wrapperVisible = carousel.closest('.photo-carousel-wrapper')?.classList.contains('visible');
-      if (!document.hidden && wrapperVisible && !reducedMotion && !isPaused && speed > 0) {
+      if (!document.hidden && wrapperVisible && !reducedMotion && speed > 0) {
         scrollPosition += speed * (deltaMs / 1000);
         carousel.scrollLeft = scrollPosition;
         const first = track.firstElementChild;
@@ -388,22 +376,11 @@
     }
 
     carouselAnimationFrame = requestAnimationFrame(tick);
-    carousel.addEventListener('pointerdown', () => {
-      carousel.classList.add('is-dragging');
-      scrollPosition = carousel.scrollLeft;
-      pauseTemporarily(2500);
-    });
-    carousel.addEventListener('pointerup', () => {
-      carousel.classList.remove('is-dragging');
-      pauseTemporarily();
-    });
-    carousel.addEventListener('pointercancel', () => {
-      carousel.classList.remove('is-dragging');
-      pauseTemporarily();
-    });
     carousel.addEventListener('wheel', () => {
       scrollPosition = carousel.scrollLeft;
-      pauseTemporarily();
+    }, { passive: true });
+    carousel.addEventListener('scroll', () => {
+      scrollPosition = carousel.scrollLeft;
     }, { passive: true });
   }
 
@@ -426,7 +403,13 @@
     lightbox.classList.remove('active');
     document.body.classList.remove('lightbox-open');
     document.body.style.top = '';
-    window.scrollTo(0, lightboxScrollY);
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: lightboxScrollY, behavior: 'auto' });
+    requestAnimationFrame(() => {
+      root.style.scrollBehavior = previousScrollBehavior;
+    });
     stopStoryTimer();
     storyPaused = false;
   }

@@ -368,12 +368,14 @@ function positionCarousel() {
     const isHomeActive = homeSection && homeSection.classList.contains('active');
     if (!isHomeActive) { wrapper.style.display = 'none'; return; }
     const homeIntro = document.querySelector('.home-intro');
+    const homeContactLinks = document.querySelector('.home-contact-links');
     if (!homeIntro) return;
-    const introRect = homeIntro.getBoundingClientRect();
+    const anchorEl = homeContactLinks || homeIntro;
+    const anchorRect = anchorEl.getBoundingClientRect();
     const fontSize = parseFloat(getComputedStyle(homeIntro).fontSize);
     const oneLineHeight = fontSize * 1.6;
-    const maxIntroBottom = introRect.top + Math.min(introRect.height, window.innerHeight * 0.5 + oneLineHeight);
-    const topPos = maxIntroBottom + (oneLineHeight * 0.55);
+    const maxIntroBottom = anchorRect.top + Math.min(anchorRect.height, window.innerHeight * 0.5 + oneLineHeight);
+    const topPos = maxIntroBottom + (oneLineHeight * 0.45);
     const bottomInset = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--spacing')) || 24;
     const availableHeight = window.innerHeight - topPos - bottomInset;
     if (availableHeight < 60) { wrapper.style.display = 'none'; return; }
