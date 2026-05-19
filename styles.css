@@ -532,7 +532,7 @@ section.active {
 }
 
 .item-tags {
-  font-size: 12px;
+  font-size: 24px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
@@ -706,19 +706,19 @@ section.active {
   align-self: flex-start;
   margin-top: -2px;
   border: 1px solid var(--text-dark);
-  border-radius: 16px;
+  border-radius: 22px;
   background: transparent;
   color: var(--text-dark);
   font-family: 'InterVariable';
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.1;
   cursor: pointer;
-  padding: 5px 8px;
+  padding: 8px 12px;
 }
 
 .home-work-link span {
   display: inline-block;
-  margin-left: 0.55em;
+  margin-left: 1.2em;
   font-size: 0.9em;
   transition: transform 0.16s ease;
 }
