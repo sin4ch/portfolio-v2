@@ -444,10 +444,23 @@ const LIGHT_THEME_COLOR = '#ffead3';
 const DARK_THEME_COLOR = '#121212';
 
 function updateSystemThemeColor(isDark) {
-  const themeColor = document.getElementById('system-theme-color');
-  if (themeColor) {
-    themeColor.setAttribute('content', isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
-  }
+  const color = isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR;
+  document.getElementById('system-theme-color')?.remove();
+
+  const themeColor = document.createElement('meta');
+  themeColor.id = 'system-theme-color';
+  themeColor.name = 'theme-color';
+  themeColor.content = color;
+  document.head.appendChild(themeColor);
+
+  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+  requestAnimationFrame(() => {
+    document.documentElement.style.transform = 'translateZ(0)';
+    requestAnimationFrame(() => {
+      document.documentElement.style.transform = '';
+    });
+  });
 }
 
 function applyThemeToggle() {
