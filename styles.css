@@ -106,6 +106,7 @@ html {
   scrollbar-width: thin;
   scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
+  background-image: none;
   color-scheme: light;
 }
 
@@ -119,6 +120,7 @@ body {
   scrollbar-width: thin;
   scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
+  background-image: none;
 }
 
 body.lightbox-open {
@@ -1427,6 +1429,10 @@ section.active {
     right: 0;
     z-index: 10020;
     background-color: var(--bg-light);
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+    outline: 0;
   }
 
   .mobile-top-bar-actions {
