@@ -425,7 +425,7 @@
         scrollPosition = carousel.scrollLeft;
         isTouchScrolling = false;
         lastTimestamp = 0;
-      }, 260);
+      }, 100);
     }
     carousel.addEventListener('touchend', resumeAfterTouchScrollSettles, { passive: true });
     carousel.addEventListener('touchcancel', () => {
@@ -434,9 +434,11 @@
         scrollPosition = carousel.scrollLeft;
         isTouchScrolling = false;
         lastTimestamp = 0;
-      }, 260);
+      }, 100);
     }, { passive: true });
-    carousel.addEventListener('wheel', () => {
+    carousel.addEventListener('wheel', (event) => {
+      const horizontalDelta = Math.abs(event.deltaX) >= Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (horizontalDelta < 0 && carousel.scrollLeft < 48) addBackwardScrollBuffer();
       scrollPosition = carousel.scrollLeft;
     }, { passive: true });
     carousel.addEventListener('scroll', () => {
