@@ -1405,7 +1405,9 @@ section.active {
   }
 
   html.home-active,
-  body.home-active {
+  body.home-active,
+  html.menu-active,
+  body.menu-active {
     overflow: hidden;
     height: 100vh;
     height: 100dvh;
@@ -1503,6 +1505,9 @@ section.active {
       calc(var(--spacing) + env(safe-area-inset-left, 0px));
     transform: translateX(100%);
     visibility: hidden;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
     transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1), visibility 0.35s;
   }
 

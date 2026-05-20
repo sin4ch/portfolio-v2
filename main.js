@@ -225,6 +225,8 @@ function repaintMobileMenuText() {
 
 function openMobileMenu() {
   sidebar.classList.add('menu-open');
+  document.body.classList.add('menu-active');
+  document.documentElement.classList.add('menu-active');
   hamburger.classList.add('open');
   hamburger.setAttribute('aria-label', 'Close menu');
   repaintMobileMenuText();
@@ -236,6 +238,8 @@ function openMobileMenu() {
 
 function closeMobileMenu(options = {}) {
   sidebar.classList.remove('menu-open');
+  document.body.classList.remove('menu-active');
+  document.documentElement.classList.remove('menu-active');
   hamburger.classList.remove('open');
   hamburger.setAttribute('aria-label', 'Open menu');
   document.removeEventListener('keydown', handleMenuFocusTrap);
