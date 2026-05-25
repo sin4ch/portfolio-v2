@@ -640,6 +640,10 @@ section.active {
   line-height: 1.2;
 }
 
+.meta-link {
+  color: inherit;
+}
+
 .source-name,
 #experience .item-subtitle,
 .experience-location {
