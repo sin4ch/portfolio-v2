@@ -6,13 +6,14 @@
    3.  Loading Screen
    4.  Favicon
    5.  Navigation & Routing
-   6.  Scroll Indicator
-   7.  Photo Carousel Positioning
-   8.  Window Resize & Visibility
-   9.  Theme Toggle
-   10. Cursor Follower
-   11. GitHub Stats
-   12. Boot
+   6.  Section Filters
+   7.  Scroll Indicator
+   8.  Photo Carousel Positioning
+   9.  Window Resize & Visibility
+   10. Theme Toggle
+   11. Cursor Follower
+   12. GitHub Stats
+   13. Boot
    ============================================ */
 
 
@@ -314,7 +315,70 @@ window.addEventListener('popstate', (event) => {
 
 
 /* ============================================
-   6. SCROLL INDICATOR
+   6. SECTION FILTERS
+   ============================================ */
+function initSectionFilters() {
+  document.querySelectorAll('.section-filter').forEach(filter => {
+    const section = document.getElementById(filter.dataset.filterSection);
+    if (!section) return;
+    const items = Array.from(section.querySelectorAll('.items > .item'));
+    let currentGroup = '';
+
+    items.forEach(item => {
+      const meta = item.querySelector('.item-meta');
+      const badge = item.querySelector('.article-badge, .role-badge');
+      const originalMeta = meta?.textContent.trim() || '';
+      if (originalMeta) currentGroup = originalMeta;
+      item.dataset.filterGroup = currentGroup;
+      item.dataset.originalMeta = originalMeta;
+      item.dataset.filterCategory = badge?.textContent.trim().toLowerCase() || '';
+    });
+
+    filter.querySelectorAll('.section-filter-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const selected = button.dataset.filterValue;
+        let lastVisibleGroup = '';
+        let hasVisibleItem = false;
+
+        filter.querySelectorAll('.section-filter-button').forEach(filterButton => {
+          const isActive = filterButton === button;
+          filterButton.classList.toggle('active', isActive);
+          filterButton.setAttribute('aria-pressed', String(isActive));
+        });
+
+        items.forEach(item => {
+          const meta = item.querySelector('.item-meta');
+          if (meta) {
+            meta.textContent = item.dataset.originalMeta;
+          }
+          const matches = selected === 'all' || item.dataset.filterCategory === selected;
+          item.hidden = !matches;
+          item.classList.remove('filter-first-visible');
+          if (!matches || !meta) return;
+
+          if (!hasVisibleItem) {
+            item.classList.add('filter-first-visible');
+            hasVisibleItem = true;
+          }
+
+          const group = item.dataset.filterGroup || '';
+          const shouldPromoteGroup = selected !== 'all' && group && group !== lastVisibleGroup && !item.dataset.originalMeta;
+          if (shouldPromoteGroup) {
+            meta.textContent = group;
+          }
+          lastVisibleGroup = group || lastVisibleGroup;
+        });
+
+        updateScrollIndicator();
+      });
+    });
+  });
+}
+
+
+
+/* ============================================
+   7. SCROLL INDICATOR
    ============================================ */
 const scrollIndicatorDown = document.getElementById('scroll-indicator-down');
 const scrollIndicatorUp = document.getElementById('scroll-indicator-up');
@@ -364,7 +428,7 @@ window.addEventListener('scroll', updateScrollIndicator, { passive: true });
 
 
 /* ============================================
-   7. PHOTO CAROUSEL POSITIONING
+   8. PHOTO CAROUSEL POSITIONING
    ============================================ */
 function isMobileLayout() {
   return window.innerWidth <= 768;
@@ -409,7 +473,7 @@ function positionCarousel() {
 }
 
 /* ============================================
-   8. WINDOW RESIZE & VISIBILITY
+   9. WINDOW RESIZE & VISIBILITY
    ============================================ */
 let lastColCount = window.PortfolioGallery.getColumnCount();
 let resizeTimer = null;
@@ -442,7 +506,7 @@ document.addEventListener('visibilitychange', () => {
 
 
 /* ============================================
-   9. THEME TOGGLE
+   10. THEME TOGGLE
    ============================================ */
 const LIGHT_THEME_COLOR = '#ffead3';
 const DARK_THEME_COLOR = '#121212';
@@ -492,7 +556,7 @@ if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
 
 
 /* ============================================
-   10. CURSOR FOLLOWER
+   11. CURSOR FOLLOWER
    ============================================ */
 const cursorFollower = document.getElementById('cursorFollower');
 const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.matchMedia('(hover: none)').matches;
@@ -706,7 +770,7 @@ if (!isTouchDevice) {
 
 
 /* ============================================
-   11. GITHUB STATS
+   12. GITHUB STATS
    ============================================ */
 function fetchGitHubStats() {
   const els = document.querySelectorAll('[data-repo]');
@@ -757,7 +821,8 @@ function fetchGitHubStats() {
 
 
 /* ============================================
-   12. BOOT
+   13. BOOT
    ============================================ */
 createRoundedFavicon();
+initSectionFilters();
 initLoadingSequence();

@@ -480,6 +480,43 @@ section.active {
   display: none;
 }
 
+.section-filter {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-family: 'Geist Mono';
+}
+
+.section-filter-button {
+  border: 1px solid var(--text-muted);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.2px;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  padding: 2px 6px;
+  text-transform: uppercase;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.section-filter-button:hover,
+.section-filter-button.active {
+  border-color: var(--text-dark);
+  color: var(--text-dark);
+}
+
+.section-filter-button.active,
+.section-filter-button.active:hover {
+  background-color: var(--text-dark);
+  border-color: var(--text-dark);
+  color: var(--bg-light) !important;
+}
+
 .items {
   display: flex;
   flex-direction: column;
@@ -492,6 +529,14 @@ section.active {
   gap: clamp(12px, 2vw, 24px);
   align-items: start;
   padding-top: 8px;
+}
+
+.item[hidden] {
+  display: none !important;
+}
+
+.item.filter-first-visible {
+  margin-top: 0 !important;
 }
 
 .item-meta {
@@ -669,6 +714,11 @@ section.active {
 #talks .item-tags,
 #talks .role-badge {
   font-family: 'Geist Mono';
+}
+
+#talks .item-tags {
+  margin-top: -2px;
+  line-height: 1;
 }
 
 
