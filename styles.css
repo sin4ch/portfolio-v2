@@ -1386,8 +1386,12 @@ section.active {
     display: none;
   }
 
+  #experience .items > .item:has(.item-meta:not(:empty)):not(:first-child) {
+    margin-top: 24px;
+  }
+
   #experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-    margin-top: 8px;
+    margin-top: 24px;
   }
 }
 
@@ -1627,8 +1631,12 @@ section.active {
     display: none;
   }
 
+  #experience .items > .item:has(.item-meta:not(:empty)):not(:first-child) {
+    margin-top: 24px;
+  }
+
   #experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-    margin-top: 8px;
+    margin-top: 24px;
   }
 
   .lightbox {
