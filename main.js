@@ -105,6 +105,8 @@ function completeLoading() {
   fetchGitHubStats();
   setTimeout(() => {
     loadingScreen.classList.add('hidden');
+    document.documentElement.classList.remove('loading-active');
+    document.body.classList.remove('loading-active');
     mainWrapper.classList.add('visible');
     handleInitialRoute();
     setTimeout(updateScrollIndicator, 100);
