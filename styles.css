@@ -473,6 +473,11 @@ section.active {
   visibility: visible;
 }
 
+section.filter-compact {
+  min-height: auto;
+  padding-bottom: 0;
+}
+
 .section-description {
   font-family: 'InterVariable';
   font-size: clamp(24px, 4vw, 35px);

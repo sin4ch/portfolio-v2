@@ -390,6 +390,7 @@ function initSectionFilters() {
         lastVisibleGroup = group || lastVisibleGroup;
       });
 
+      section.classList.toggle('filter-compact', selected !== 'all');
       updateScrollIndicator();
     }
 
