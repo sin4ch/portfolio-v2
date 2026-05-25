@@ -322,6 +322,7 @@ function initSectionFilters() {
     const section = document.getElementById(filter.dataset.filterSection);
     if (!section) return;
     const items = Array.from(section.querySelectorAll('.items > .item'));
+    const buttons = Array.from(filter.querySelectorAll('.section-filter-button'));
     let currentGroup = '';
 
     items.forEach(item => {
@@ -334,44 +335,67 @@ function initSectionFilters() {
       item.dataset.filterCategory = badge?.textContent.trim().toLowerCase() || '';
     });
 
-    filter.querySelectorAll('.section-filter-button').forEach(button => {
-      button.addEventListener('click', () => {
-        const selected = button.dataset.filterValue;
-        let lastVisibleGroup = '';
-        let hasVisibleItem = false;
+    function itemMatchesFilter(item, selected) {
+      if (selected === 'all') return true;
+      if (selected === 'favourite') return item.dataset.filterFavourite === 'true';
+      return item.dataset.filterCategory === selected;
+    }
 
-        filter.querySelectorAll('.section-filter-button').forEach(filterButton => {
-          const isActive = filterButton === button;
-          filterButton.classList.toggle('active', isActive);
-          filterButton.setAttribute('aria-pressed', String(isActive));
-        });
+    function applyFilter(activeButton) {
+      const selected = activeButton.dataset.filterValue;
+      const isFavouriteFilter = selected === 'favourite';
+      let lastVisibleGroup = '';
 
-        items.forEach(item => {
-          const meta = item.querySelector('.item-meta');
-          if (meta) {
-            meta.textContent = item.dataset.originalMeta;
-          }
-          const matches = selected === 'all' || item.dataset.filterCategory === selected;
-          item.hidden = !matches;
-          item.classList.remove('filter-first-visible');
-          if (!matches || !meta) return;
-
-          if (!hasVisibleItem) {
-            item.classList.add('filter-first-visible');
-            hasVisibleItem = true;
-          }
-
-          const group = item.dataset.filterGroup || '';
-          const shouldPromoteGroup = selected !== 'all' && group && group !== lastVisibleGroup && !item.dataset.originalMeta;
-          if (shouldPromoteGroup) {
-            meta.textContent = group;
-          }
-          lastVisibleGroup = group || lastVisibleGroup;
-        });
-
-        updateScrollIndicator();
+      buttons.forEach(button => {
+        const isActive = button === activeButton;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
       });
+
+      const visibleItems = [];
+      items.forEach(item => {
+        const meta = item.querySelector('.item-meta');
+        item.style.order = isFavouriteFilter ? item.dataset.filterOrder || '999' : '';
+        if (meta) {
+          meta.textContent = isFavouriteFilter ? '' : item.dataset.originalMeta;
+        }
+
+        const matches = itemMatchesFilter(item, selected);
+        item.hidden = !matches;
+        item.classList.remove('filter-first-visible');
+        if (matches) {
+          visibleItems.push(item);
+        }
+      });
+
+      const orderedVisibleItems = isFavouriteFilter
+        ? [...visibleItems].sort((a, b) => Number(a.dataset.filterOrder || 999) - Number(b.dataset.filterOrder || 999))
+        : visibleItems;
+
+      orderedVisibleItems.forEach((item, index) => {
+        const meta = item.querySelector('.item-meta');
+        if (!meta) return;
+
+        if (index === 0) {
+          item.classList.add('filter-first-visible');
+        }
+
+        const group = item.dataset.filterGroup || '';
+        const shouldPromoteGroup = !isFavouriteFilter && selected !== 'all' && group && group !== lastVisibleGroup && !item.dataset.originalMeta;
+        if (shouldPromoteGroup) {
+          meta.textContent = group;
+        }
+        lastVisibleGroup = group || lastVisibleGroup;
+      });
+
+      updateScrollIndicator();
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => applyFilter(button));
     });
+
+    applyFilter(buttons.find(button => button.classList.contains('active')) || buttons[0]);
   });
 }
 

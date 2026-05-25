@@ -517,6 +517,12 @@ section.active {
   color: var(--bg-light) !important;
 }
 
+.section-filter-icon {
+  min-width: 30px;
+  text-align: center;
+  letter-spacing: 0;
+}
+
 .items {
   display: flex;
   flex-direction: column;
@@ -1456,11 +1462,11 @@ section.active {
   }
 
   #experience .items > .item:has(.item-meta:not(:empty)):not(:first-child) {
-    margin-top: 24px;
+    margin-top: 16px;
   }
 
   #experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-    margin-top: 24px;
+    margin-top: 16px;
   }
 }
 
@@ -1701,11 +1707,11 @@ section.active {
   }
 
   #experience .items > .item:has(.item-meta:not(:empty)):not(:first-child) {
-    margin-top: 24px;
+    margin-top: 16px;
   }
 
   #experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-    margin-top: 24px;
+    margin-top: 16px;
   }
 
   .lightbox {
