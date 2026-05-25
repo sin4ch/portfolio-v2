@@ -717,8 +717,13 @@ section.active {
 }
 
 #talks .item-tags {
-  margin-top: -2px;
-  line-height: 1;
+  font-size: 12px;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+#talks .role-badge {
+  display: inline-flex;
 }
 
 
