@@ -573,6 +573,20 @@ section.active {
 
 .date-text {
   font-family: 'Geist Mono';
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.article-badge {
+  background: var(--bg-light);
+  color: var(--text-dark);
+  border: 1px solid var(--text-dark);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
 }
 
 .source-name,
