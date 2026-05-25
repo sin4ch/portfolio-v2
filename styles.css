@@ -650,6 +650,18 @@ section.active {
   font-family: 'Geist Mono';
 }
 
+.source-ref {
+  display: inline;
+}
+
+.source-icon {
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: 6px;
+  object-fit: contain;
+  vertical-align: -0.25em;
+}
+
 .item-description {
   font-size: 16.72px;
   line-height: 1.35;
