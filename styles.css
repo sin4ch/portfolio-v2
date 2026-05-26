@@ -532,9 +532,55 @@ section.filter-compact {
 }
 
 .section-filter-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  letter-spacing: 0;
   min-width: 30px;
   text-align: center;
-  letter-spacing: 0;
+}
+
+.section-filter-icon svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+  fill: currentColor;
+}
+
+.tag-design-picker {
+  /* Temporarily hidden, not deleted. This lets us revive project tag design previews without rebuilding the implementation. */
+  display: none;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -8px 0 16px;
+  font-family: 'Geist Mono';
+}
+
+.tag-design-button {
+  border: 1px solid color-mix(in srgb, var(--text-muted) 72%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.tag-design-button:hover,
+.tag-design-button.active {
+  border-color: var(--text-dark);
+  color: var(--text-dark);
+}
+
+.tag-design-button.active {
+  background: var(--text-dark);
+  color: var(--bg-light);
 }
 
 .items {
@@ -698,11 +744,70 @@ section.filter-compact {
 }
 
 .item-tools {
+  /* Keep project skill tags in the DOM for future design use, but do not render them in the current UI. */
+  display: none;
   font-family: 'Geist Mono';
   font-size: 13.2px;
   letter-spacing: 0.05em;
   color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 5px 8px;
   margin-top: 4px;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.45em;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+#projects[data-tag-style="quiet"] .skill-tag:not(:last-child)::after {
+  content: ",";
+}
+
+#projects[data-tag-style="boxed"] .item-tools {
+  gap: 6px;
+}
+
+#projects[data-tag-style="boxed"] .skill-tag {
+  border: 1px solid color-mix(in srgb, var(--text-muted) 64%, transparent);
+  border-radius: 2px;
+  padding: 1px 5px;
+}
+
+#projects[data-tag-style="rail"] .item-tools {
+  gap: 4px 10px;
+}
+
+#projects[data-tag-style="rail"] .skill-tag {
+  border-left: 2px solid var(--text-muted);
+  padding-left: 6px;
+}
+
+#projects[data-tag-style="dot"] .item-tools {
+  gap: 4px 12px;
+}
+
+#projects[data-tag-style="dot"] .skill-tag::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  margin-right: 7px;
+  opacity: 0.72;
+}
+
+#projects[data-tag-style="soft"] .item-tools {
+  gap: 6px;
+}
+
+#projects[data-tag-style="soft"] .skill-tag {
+  border: 1px solid color-mix(in srgb, var(--text-muted) 34%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 9%, transparent);
+  padding: 2px 8px;
 }
 
 .item-stats {

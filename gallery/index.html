@@ -191,6 +191,23 @@
         <!-- Projects -->
         <section id="projects">
           <div class="section-description">Selected projects.</div>
+          <div class="section-filter project-sort" data-sort-section="projects" aria-label="Sort projects">
+            <button class="section-filter-button active" type="button" data-sort-value="date" aria-pressed="true">BY DATE</button>
+            <button class="section-filter-button section-filter-icon" type="button" data-sort-value="stars" aria-label="Sort projects by stars" aria-pressed="false">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
+            </button>
+            <button class="section-filter-button section-filter-icon" type="button" data-sort-value="forks" aria-label="Sort projects by forks" aria-pressed="false">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm3-8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path></svg>
+            </button>
+          </div>
+          <!-- Intentionally hidden for now: keep this picker and the project skill tag markup because we may reuse these tag design explorations later. -->
+          <div class="tag-design-picker" aria-label="Preview project skill tag designs">
+            <button class="tag-design-button active" type="button" data-tag-style="quiet" aria-pressed="true">Quiet</button>
+            <button class="tag-design-button" type="button" data-tag-style="boxed" aria-pressed="false">Boxed</button>
+            <button class="tag-design-button" type="button" data-tag-style="rail" aria-pressed="false">Rail</button>
+            <button class="tag-design-button" type="button" data-tag-style="dot" aria-pressed="false">Dot</button>
+            <button class="tag-design-button" type="button" data-tag-style="soft" aria-pressed="false">Soft</button>
+          </div>
           <div class="items">
             <div class="item">
               <div class="item-meta">2026</div>
@@ -474,7 +491,9 @@
         <section id="talks">
           <div class="section-description">Speaking and hosting engagements at industry events and conferences.</div>
           <div class="section-filter" data-filter-section="talks" aria-label="Filter speaking and hosting">
-            <button class="section-filter-button section-filter-icon active" type="button" data-filter-value="favourite" aria-label="Favourite talks" aria-pressed="true">★</button>
+            <button class="section-filter-button section-filter-icon active" type="button" data-filter-value="favourite" aria-label="Favourite talks" aria-pressed="true">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
+            </button>
             <button class="section-filter-button" type="button" data-filter-value="all" aria-pressed="false">ALL</button>
             <button class="section-filter-button" type="button" data-filter-value="speaker" aria-pressed="false">SPEAKER</button>
             <button class="section-filter-button" type="button" data-filter-value="host" aria-pressed="false">HOST</button>

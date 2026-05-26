@@ -29,6 +29,8 @@ const EXTERNAL_REDIRECTS = {
   'email': 'mailto:okparaosi17@gmail.com',
   'resume': 'https://drive.google.com/file/d/1L5ceYqwEsZa2TuNwEsT65-IAWpmQLh8Y/view'
 };
+const STAR_PATH = 'M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z';
+const FORK_PATH = 'M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm3-8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z';
 function getSectionPath(sectionId) {
   return sectionId === 'home' ? '/' : `/${sectionId}/`;
 }
@@ -399,6 +401,104 @@ function initSectionFilters() {
     });
 
     applyFilter(buttons.find(button => button.classList.contains('active')) || buttons[0]);
+  });
+}
+
+function initProjectSort() {
+  document.querySelectorAll('.project-sort').forEach(sortControl => {
+    const section = document.getElementById(sortControl.dataset.sortSection);
+    if (!section) return;
+
+    const itemsContainer = section.querySelector('.items');
+    const items = Array.from(section.querySelectorAll('.items > .item'));
+    const buttons = Array.from(sortControl.querySelectorAll('.section-filter-button'));
+    const originalItems = [...items];
+
+    function syncProjectYears(showYears) {
+      if (!showYears) {
+        Array.from(itemsContainer.children).forEach(item => {
+          const meta = item.querySelector('.item-meta');
+          if (meta) meta.textContent = '';
+        });
+        return;
+      }
+
+      let lastYear = '';
+      Array.from(itemsContainer.children).forEach(item => {
+        const meta = item.querySelector('.item-meta');
+        if (!meta) return;
+        const year = item.dataset.projectYear || '';
+        meta.textContent = year && year !== lastYear ? year : '';
+        if (year) lastYear = year;
+      });
+    }
+
+    items.forEach(item => {
+      const meta = item.querySelector('.item-meta');
+      item.dataset.projectYear = meta?.textContent.trim() || '';
+      item.dataset.projectStars = '0';
+      item.dataset.projectForks = '0';
+    });
+
+    function applySort(activeButton) {
+      const selected = activeButton.dataset.sortValue;
+      buttons.forEach(button => {
+        const isActive = button === activeButton;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+
+      const sortedItems = selected === 'date'
+        ? originalItems
+        : [...items].sort((a, b) => {
+            const aValue = Number(selected === 'stars' ? a.dataset.projectStars : a.dataset.projectForks) || 0;
+            const bValue = Number(selected === 'stars' ? b.dataset.projectStars : b.dataset.projectForks) || 0;
+            return bValue - aValue || originalItems.indexOf(a) - originalItems.indexOf(b);
+          });
+
+      sortedItems.forEach(item => itemsContainer.appendChild(item));
+      syncProjectYears(selected === 'date');
+      updateScrollIndicator();
+    }
+
+    document.addEventListener('projectstatschange', () => {
+      const activeButton = buttons.find(button => button.classList.contains('active'));
+      if (activeButton && activeButton.dataset.sortValue !== 'date') {
+        applySort(activeButton);
+      }
+    });
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => applySort(button));
+    });
+
+    applySort(buttons.find(button => button.classList.contains('active')) || buttons[0]);
+  });
+}
+
+function initProjectTagDesignPicker() {
+  const projectsSection = document.getElementById('projects');
+  const picker = document.querySelector('.tag-design-picker');
+  if (!projectsSection || !picker) return;
+
+  projectsSection.dataset.tagStyle = picker.querySelector('.active')?.dataset.tagStyle || 'quiet';
+
+  projectsSection.querySelectorAll('.item-tools').forEach(tools => {
+    if (tools.dataset.formatted === 'true') return;
+    const tags = tools.textContent.split(',').map(tag => tag.trim()).filter(Boolean);
+    tools.dataset.formatted = 'true';
+    tools.innerHTML = tags.map(tag => `<span class="skill-tag">${tag}</span>`).join('');
+  });
+
+  picker.querySelectorAll('.tag-design-button').forEach(button => {
+    button.addEventListener('click', () => {
+      projectsSection.dataset.tagStyle = button.dataset.tagStyle;
+      picker.querySelectorAll('.tag-design-button').forEach(option => {
+        const isActive = option === button;
+        option.classList.toggle('active', isActive);
+        option.setAttribute('aria-pressed', String(isActive));
+      });
+    });
   });
 }
 
@@ -800,17 +900,20 @@ if (!isTouchDevice) {
    12. GITHUB STATS
    ============================================ */
 function fetchGitHubStats() {
-  const els = document.querySelectorAll('[data-repo]');
+  const els = document.querySelectorAll('.item-stats[data-repo]');
   if (!els.length) return;
 
-  const STAR_PATH = 'M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z';
-  const FORK_PATH = 'M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm3-8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z';
-
   function renderStats(el, stars, forks) {
+    const item = el.closest('.item');
+    if (item) {
+      item.dataset.projectStars = String(stars);
+      item.dataset.projectForks = String(forks);
+    }
     el.innerHTML =
       '<span class="stat-badge"><svg viewBox="0 0 16 16" fill="currentColor"><path d="' + STAR_PATH + '"/></svg> ' + stars + '</span>' +
       '<span class="stat-badge"><svg viewBox="0 0 16 16" fill="currentColor"><path d="' + FORK_PATH + '"/></svg> ' + forks + '</span>';
     if (typeof badgeRectsDirty !== 'undefined') badgeRectsDirty = true;
+    document.dispatchEvent(new CustomEvent('projectstatschange'));
   }
 
   els.forEach(function(el) {
@@ -852,4 +955,6 @@ function fetchGitHubStats() {
    ============================================ */
 createRoundedFavicon();
 initSectionFilters();
+initProjectSort();
+initProjectTagDesignPicker();
 initLoadingSequence();
