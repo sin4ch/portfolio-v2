@@ -715,11 +715,16 @@ section.filter-compact {
 }
 
 .source-icon {
-  width: 1.15em;
-  height: 1.15em;
+  width: 1.05em;
+  height: 1.05em;
+  box-sizing: border-box;
+  padding: 1px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--bg-light) 42%, transparent);
   margin-right: 6px;
   object-fit: contain;
-  vertical-align: -0.25em;
+  vertical-align: -0.18em;
 }
 
 .item-description {
