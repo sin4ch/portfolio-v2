@@ -601,6 +601,11 @@ section.filter-compact {
   display: none !important;
 }
 
+/* Intentionally retained in the HTML for future reuse, but hidden from the live UI. */
+.contribution-hidden {
+  display: none !important;
+}
+
 .item.filter-first-visible {
   margin-top: 0 !important;
 }
