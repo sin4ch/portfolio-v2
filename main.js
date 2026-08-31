@@ -640,22 +640,12 @@ const DARK_THEME_COLOR = '#121212';
 
 function updateSystemThemeColor(isDark) {
   const color = isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR;
-  document.getElementById('system-theme-color')?.remove();
+  const themeColor = document.getElementById('system-theme-color');
 
-  const themeColor = document.createElement('meta');
-  themeColor.id = 'system-theme-color';
-  themeColor.name = 'theme-color';
-  themeColor.content = color;
-  document.head.appendChild(themeColor);
+  // Keep the same element so Chrome can observe the theme-color update in an installed PWA.
+  themeColor?.setAttribute('content', color);
 
   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-
-  requestAnimationFrame(() => {
-    document.documentElement.style.transform = 'translateZ(0)';
-    requestAnimationFrame(() => {
-      document.documentElement.style.transform = '';
-    });
-  });
 }
 
 function applyThemeToggle() {
