@@ -1687,6 +1687,14 @@ section.filter-compact {
     visibility: visible;
   }
 
+  html:has(#home.active) .scroll-indicator-btn,
+  html.home-active .scroll-indicator-btn,
+  body.home-active .scroll-indicator-btn {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .scroll-indicator-up {
     top: calc(var(--spacing) + 44px);
   }

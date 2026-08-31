@@ -185,6 +185,7 @@ function showSection(targetId, updateUrl = true) {
   document.documentElement.classList.toggle('home-active', isHome);
   positionCarousel();
   updateScrollIndicator();
+  scheduleScrollIndicatorUpdate();
 }
 
 function handleInitialRoute() {
@@ -394,6 +395,7 @@ function initSectionFilters() {
 
       section.classList.toggle('filter-compact', selected !== 'all');
       updateScrollIndicator();
+      scheduleScrollIndicatorUpdate();
     }
 
     buttons.forEach(button => {
@@ -511,14 +513,43 @@ const scrollIndicatorDown = document.getElementById('scroll-indicator-down');
 const scrollIndicatorUp = document.getElementById('scroll-indicator-up');
 let lastScrollTop = 0;
 let scrollDirection = 'down';
+let scrollIndicatorUpdateFrame = 0;
+const SCROLL_EPSILON = 1;
+
+function hideScrollIndicators() {
+  scrollIndicatorDown?.classList.remove('visible');
+  scrollIndicatorUp?.classList.remove('visible');
+}
 
 function updateScrollIndicator() {
-  const root = document.documentElement;
-  const currentScrollTop = window.scrollY || root.scrollTop;
-  const viewportHeight = window.innerHeight;
-  const scrollHeight = root.scrollHeight;
-  const isScrollable = scrollHeight > viewportHeight + 1;
-  const isAtBottom = currentScrollTop + viewportHeight >= scrollHeight - 20;
+  const scrollRoot = document.scrollingElement || document.documentElement;
+  const currentScrollTop = Math.max(0, scrollRoot.scrollTop);
+  const homeSection = document.getElementById('home');
+  const isHomeActive = scrollRoot.classList.contains('home-active')
+    || document.body.classList.contains('home-active')
+    || homeSection?.classList.contains('active');
+
+  // Home is a fixed viewport, so never leave a stale indicator visible there.
+  if (isHomeActive) {
+    lastScrollTop = currentScrollTop;
+    scrollDirection = 'down';
+    hideScrollIndicators();
+    return;
+  }
+
+  const viewportHeight = scrollRoot.clientHeight || window.innerHeight;
+  const scrollHeight = scrollRoot.scrollHeight;
+  const maxScrollTop = Math.max(0, scrollHeight - viewportHeight);
+  const isScrollable = maxScrollTop > SCROLL_EPSILON;
+
+  if (!isScrollable) {
+    lastScrollTop = currentScrollTop;
+    scrollDirection = 'down';
+    hideScrollIndicators();
+    return;
+  }
+
+  const isAtBottom = currentScrollTop >= maxScrollTop - 20;
   const isAtTop = currentScrollTop <= 20;
 
   if (currentScrollTop < lastScrollTop) {
@@ -538,9 +569,18 @@ function updateScrollIndicator() {
   }
 }
 
+function scheduleScrollIndicatorUpdate() {
+  if (scrollIndicatorUpdateFrame) return;
+  scrollIndicatorUpdateFrame = window.requestAnimationFrame(() => {
+    scrollIndicatorUpdateFrame = 0;
+    updateScrollIndicator();
+  });
+}
+
 if (scrollIndicatorDown) {
   scrollIndicatorDown.addEventListener('click', () => {
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+    const scrollRoot = document.scrollingElement || document.documentElement;
+    window.scrollTo({ top: scrollRoot.scrollHeight, behavior: 'smooth' });
   });
 }
 
@@ -551,6 +591,21 @@ if (scrollIndicatorUp) {
 }
 
 window.addEventListener('scroll', updateScrollIndicator, { passive: true });
+
+if (typeof ResizeObserver === 'function') {
+  const scrollResizeObserver = new ResizeObserver(() => {
+    scheduleScrollIndicatorUpdate();
+  });
+  const content = document.querySelector('.content');
+  if (content) scrollResizeObserver.observe(content);
+  sections.forEach(section => scrollResizeObserver.observe(section));
+}
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', scheduleScrollIndicatorUpdate, { passive: true });
+}
+
+window.addEventListener('pageshow', scheduleScrollIndicatorUpdate);
 
 
 
@@ -616,6 +671,7 @@ window.addEventListener('resize', () => {
     closeMobileMenu();
   }
   updateScrollIndicator();
+  scheduleScrollIndicatorUpdate();
   positionCarousel();
   const newColCount = window.PortfolioGallery.getColumnCount();
   if (newColCount !== lastColCount) {
@@ -627,6 +683,7 @@ window.addEventListener('resize', () => {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     positionCarousel();
+    scheduleScrollIndicatorUpdate();
   }
 });
 
