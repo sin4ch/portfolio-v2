@@ -194,6 +194,7 @@ function showSection(targetId, updateUrl = true) {
   const isHome = targetId === 'home';
   document.body.classList.toggle('home-active', isHome);
   document.documentElement.classList.toggle('home-active', isHome);
+  packFilterRows();
   positionCarousel();
   updateScrollIndicator();
   scheduleScrollIndicatorUpdate();
@@ -692,6 +693,63 @@ function updateMobileStickyFilter() {
 }
 
 window.addEventListener('resize', updateMobileStickyFilter);
+
+
+/* ============================================
+   6c. FILTER ROW PACKING (groups each visual row of filter buttons
+   into its own bordered box, so boxes hug their row instead of
+   stretching full-width)
+   ============================================ */
+let packFilterTimer = null;
+
+function packFilterRows() {
+  unstickMobileFilter();
+  document.querySelectorAll('.section-filter').forEach(filter => {
+    const existingRows = Array.from(filter.querySelectorAll(':scope > .section-filter-row'));
+    existingRows.forEach(row => {
+      while (row.firstChild) filter.insertBefore(row.firstChild, row);
+      row.remove();
+    });
+    const buttons = Array.from(filter.querySelectorAll(':scope > .section-filter-button'));
+    if (!buttons.length) return;
+    const filterWidth = filter.clientWidth;
+    if (filterWidth <= 0) return;
+    const label = filter.querySelector(':scope > .section-filter-label');
+    const labelWidth = label ? Math.ceil(label.getBoundingClientRect().width) + 8 : 0;
+    const widths = buttons.map(button => Math.ceil(button.getBoundingClientRect().width));
+    const rows = [];
+    let current = [];
+    let currentWidth = 0;
+    let capacity = filterWidth - labelWidth;
+    buttons.forEach((button, index) => {
+      if (current.length && currentWidth + widths[index] > capacity) {
+        rows.push(current);
+        current = [];
+        currentWidth = 0;
+        capacity = filterWidth;
+      }
+      current.push(button);
+      currentWidth += widths[index];
+    });
+    if (current.length) rows.push(current);
+    rows.forEach(rowButtons => {
+      const row = document.createElement('div');
+      row.className = 'section-filter-row';
+      rowButtons.forEach(button => row.appendChild(button));
+      filter.appendChild(row);
+    });
+  });
+}
+
+function schedulePackFilterRows() {
+  window.clearTimeout(packFilterTimer);
+  packFilterTimer = window.setTimeout(packFilterRows, 150);
+}
+
+window.addEventListener('resize', schedulePackFilterRows);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => packFilterRows());
+}
 
 
 

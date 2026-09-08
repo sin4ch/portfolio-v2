@@ -526,7 +526,8 @@ section.filter-compact {
 }
 
 .section-filter-button {
-  border: 1px solid var(--text-muted);
+  border: none;
+  border-left: 1px solid var(--text-muted);
   border-radius: 0;
   background: transparent;
   color: var(--text-muted);
@@ -535,27 +536,36 @@ section.filter-compact {
   font-size: var(--font-size-badge);
   letter-spacing: 0.1em;
   line-height: 1.2;
-  padding: 2px 6px;
+  padding: 3px 7px;
   text-transform: uppercase;
-  margin-left: -1px;
-  margin-top: -1px;
-  position: relative;
-  z-index: 1;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.section-filter-button:first-of-type {
+  border-left: none;
+}
+
+/* Row boxes built by packFilterRows(): each hugs exactly one row of buttons,
+   so wrapped rows never stretch a box full-width. */
+.section-filter-row {
+  display: flex;
+  background: transparent;
+  border: 1px solid var(--text-muted);
+  max-width: 100%;
+}
+
+.section-filter-row + .section-filter-row {
+  border-top: none;
 }
 
 .section-filter-button:hover {
-  border-color: var(--text-dark);
   color: var(--text-dark);
-  z-index: 2;
 }
 
 .section-filter-button.active,
 .section-filter-button.active:hover {
   background-color: var(--text-dark);
-  border-color: var(--text-dark);
   color: var(--bg-light) !important;
-  z-index: 3;
 }
 
 .items {
@@ -835,7 +845,7 @@ section.filter-compact {
   background: var(--bg-light);
   color: var(--text-dark);
   border: 1px solid var(--text-dark);
-  padding: 1px 5px;
+  padding: 2px 6px;
   border-radius: 2px;
   font-size: var(--font-size-badge);
   letter-spacing: 0.1em;
@@ -1690,6 +1700,11 @@ html:has(#talks.active) .scroll-indicator-up {
     margin-bottom: 0;
     padding: 0 0 16px;
     background-color: var(--bg-light);
+    align-items: flex-start;
+  }
+
+  .section-filter-label {
+    padding-top: 3px;
   }
 
   .scroll-indicator-up {
