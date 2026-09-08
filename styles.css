@@ -117,7 +117,10 @@ html {
 body {
   min-height: 100%;
   min-height: 100svh;
-  overflow-x: clip;
+  /* Keep horizontal overflow visible: any clipping value here breaks
+     position:sticky for descendants on mobile browsers. Sideways scroll
+     is prevented instead by keeping wide content (e.g. cursor follower)
+     clamped inside the viewport. */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
@@ -500,8 +503,10 @@ section.filter-compact {
 }
 
 .section-filter {
+  /* Sticky at its own natural offset, so the bar never travels: it sits
+     exactly where it loads while content slides beneath it. */
   position: sticky;
-  top: 0;
+  top: var(--spacing);
   z-index: 50;
   display: flex;
   justify-content: flex-end;
@@ -512,6 +517,18 @@ section.filter-compact {
   padding: 8px 0 16px;
   background-color: var(--bg-light);
   font-family: 'Geist Mono';
+}
+
+/* Mask: paints everything above the bar in page background, so scrolled
+   content never shows past it (desktop only; mobile keeps its top gap). */
+.section-filter::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 100vh;
+  background-color: var(--bg-light);
 }
 
 .section-filter-label {
@@ -827,6 +844,7 @@ section.filter-compact {
   font-family: 'Geist Mono';
   font-size: var(--font-size-small);
   letter-spacing: 0.1em;
+  line-height: 1.2;
   text-transform: uppercase;
   color: var(--text-muted-70);
   display: flex;
@@ -1470,10 +1488,13 @@ section.filter-compact {
   top: 20px;
 }
 
-html:has(#projects.active) .scroll-indicator-up,
-html:has(#writing.active) .scroll-indicator-up,
-html:has(#talks.active) .scroll-indicator-up {
-  top: 64px;
+/* Docked to the filter bar on filter sections: rides with it, so no
+   tuned offset can ever drift (scales with text via margin). */
+.section-filter .scroll-indicator-up {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.75rem;
 }
 
 .scroll-indicator-btn svg {
@@ -1693,14 +1714,19 @@ html:has(#talks.active) .scroll-indicator-up {
     pointer-events: none;
   }
 
+  /* Mobile bars never move either: layout padding pins them 128px down. */
   .section-filter {
     position: sticky;
-    top: 60px;
+    top: 128px;
     z-index: 50;
     margin-bottom: 0;
     padding: 0 0 16px;
     background-color: var(--bg-light);
     align-items: flex-start;
+  }
+
+  .section-filter::before {
+    content: none;
   }
 
   .section-filter-label {
@@ -1711,10 +1737,8 @@ html:has(#talks.active) .scroll-indicator-up {
     top: calc(var(--spacing) + 44px);
   }
 
-  html:has(#projects.active) .scroll-indicator-up,
-  html:has(#writing.active) .scroll-indicator-up,
-  html:has(#talks.active) .scroll-indicator-up {
-    top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 128px);
+  .scroll-indicator-up {
+    top: calc(var(--spacing) + 44px);
   }
 
   .hamburger {
@@ -1943,10 +1967,8 @@ html:has(#talks.active) .scroll-indicator-up {
     top: calc(var(--spacing) + 44px + 10px);
   }
 
-  html:has(#projects.active) .scroll-indicator-up,
-  html:has(#writing.active) .scroll-indicator-up,
-  html:has(#talks.active) .scroll-indicator-up {
-    top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 128px);
+  .scroll-indicator-up {
+    top: calc(var(--spacing) + 44px);
   }
 
   .contact-bar {

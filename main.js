@@ -198,7 +198,12 @@ function showSection(targetId, updateUrl = true) {
   positionCarousel();
   updateScrollIndicator();
   scheduleScrollIndicatorUpdate();
-  updateMobileStickyFilter();
+  updatePinnedFilter();
+  const scrollUpButton = document.getElementById('scroll-indicator-up');
+  if (scrollUpButton) {
+    const sectionFilter = targetSection ? targetSection.querySelector('.section-filter') : null;
+    (sectionFilter || document.querySelector('main.content')).appendChild(scrollUpButton);
+  }
 }
 
 function handleInitialRoute() {
@@ -509,7 +514,7 @@ function hideScrollIndicators() {
 }
 
 function updateScrollIndicator() {
-  updateMobileStickyFilter();
+  updatePinnedFilter();
   const scrollRoot = document.scrollingElement || document.documentElement;
   const currentScrollTop = Math.max(0, scrollRoot.scrollTop);
   const homeSection = document.getElementById('home');
@@ -617,82 +622,80 @@ document.addEventListener('scroll', () => scheduleScrollIndicatorUpdate(), { pas
 
 
 /* ============================================
-   6b. MOBILE STICKY FILTER (pins the filter bar under the top nav;
-   backs up CSS position:sticky where it does not hold)
+   6b. MOBILE STICKY FILTER (pins the filter bar under the top nav on
+   small screens, but only if CSS position:sticky has visibly failed;
+   otherwise it stays out of the way)
    ============================================ */
-const mobileStickyMQ = window.matchMedia('(max-width: 768px)');
-let stuckFilter = null;
-let stuckPlaceholder = null;
+const mobilePinMQ = window.matchMedia('(max-width: 768px)');
+let pinnedFilter = null;
+let pinnedPlaceholder = null;
 
-function getMobileTopbarHeight() {
-  if (!mobileStickyMQ.matches) return 0;
+function getPinnedTopbarHeight() {
+  if (!mobilePinMQ.matches) return 0;
   const bar = document.getElementById('mobile-top-bar');
   if (!bar) return 0;
   return bar.getBoundingClientRect().height;
 }
 
-function unstickMobileFilter() {
-  if (!stuckFilter) return;
-  stuckFilter.style.position = '';
-  stuckFilter.style.top = '';
-  stuckFilter.style.left = '';
-  stuckFilter.style.width = '';
-  stuckFilter.style.zIndex = '';
-  if (stuckPlaceholder && stuckPlaceholder.parentNode) {
-    stuckPlaceholder.parentNode.removeChild(stuckPlaceholder);
+function unpinFilter() {
+  if (!pinnedFilter) return;
+  pinnedFilter.style.position = '';
+  pinnedFilter.style.top = '';
+  pinnedFilter.style.left = '';
+  pinnedFilter.style.width = '';
+  pinnedFilter.style.zIndex = '';
+  if (pinnedPlaceholder && pinnedPlaceholder.parentNode) {
+    pinnedPlaceholder.parentNode.removeChild(pinnedPlaceholder);
   }
-  stuckPlaceholder = null;
-  stuckFilter = null;
+  pinnedPlaceholder = null;
+  pinnedFilter = null;
 }
 
-function syncStuckFilterGeometry(topbarH) {
-  if (!stuckFilter || !stuckPlaceholder) return;
-  const rect = stuckPlaceholder.getBoundingClientRect();
-  stuckFilter.style.top = topbarH + 'px';
-  stuckFilter.style.left = rect.left + 'px';
-  stuckFilter.style.width = rect.width + 'px';
+function syncPinnedFilter(topbarH) {
+  if (!pinnedFilter || !pinnedPlaceholder) return;
+  const rect = pinnedPlaceholder.getBoundingClientRect();
+  pinnedFilter.style.top = topbarH + 'px';
+  pinnedFilter.style.left = rect.left + 'px';
+  pinnedFilter.style.width = rect.width + 'px';
 }
 
-function updateMobileStickyFilter() {
-  if (!mobileStickyMQ.matches) {
-    unstickMobileFilter();
+function updatePinnedFilter() {
+  if (!mobilePinMQ.matches) {
+    unpinFilter();
     return;
   }
   const activeSection = document.querySelector('section.active');
   const activeFilter = activeSection ? activeSection.querySelector('.section-filter') : null;
-  if (stuckFilter && stuckFilter !== activeFilter) {
-    unstickMobileFilter();
+  if (pinnedFilter && pinnedFilter !== activeFilter) {
+    unpinFilter();
   }
   if (!activeFilter) {
-    unstickMobileFilter();
+    unpinFilter();
     return;
   }
-  const topbarH = getMobileTopbarHeight();
-  if (stuckFilter) {
-    if (stuckPlaceholder) {
-      const placeholderTop = stuckPlaceholder.getBoundingClientRect().top;
-      if (placeholderTop >= topbarH - 1) {
-        unstickMobileFilter();
-        return;
-      }
+  const topbarH = getPinnedTopbarHeight();
+  if (pinnedFilter) {
+    if (pinnedPlaceholder && pinnedPlaceholder.getBoundingClientRect().top >= topbarH + 8) {
+      unpinFilter();
+      return;
     }
-    syncStuckFilterGeometry(topbarH);
+    syncPinnedFilter(topbarH);
     return;
   }
   const rect = activeFilter.getBoundingClientRect();
-  if (rect.height > 0 && rect.top < topbarH - 1) {
-    stuckPlaceholder = document.createElement('div');
-    stuckPlaceholder.setAttribute('aria-hidden', 'true');
-    stuckPlaceholder.style.height = rect.height + 'px';
-    activeFilter.parentNode.insertBefore(stuckPlaceholder, activeFilter);
-    stuckFilter = activeFilter;
-    stuckFilter.style.position = 'fixed';
-    stuckFilter.style.zIndex = '50';
-    syncStuckFilterGeometry(topbarH);
+  if (rect.height > 0 && rect.top < topbarH) {
+    pinnedPlaceholder = document.createElement('div');
+    pinnedPlaceholder.setAttribute('aria-hidden', 'true');
+    pinnedPlaceholder.style.height = rect.height + 'px';
+    activeFilter.parentNode.insertBefore(pinnedPlaceholder, activeFilter);
+    pinnedFilter = activeFilter;
+    pinnedFilter.style.position = 'fixed';
+    pinnedFilter.style.zIndex = '50';
+    syncPinnedFilter(topbarH);
   }
 }
 
-window.addEventListener('resize', updateMobileStickyFilter);
+window.addEventListener('resize', updatePinnedFilter);
 
 
 /* ============================================
@@ -703,7 +706,6 @@ window.addEventListener('resize', updateMobileStickyFilter);
 let packFilterTimer = null;
 
 function packFilterRows() {
-  unstickMobileFilter();
   document.querySelectorAll('.section-filter').forEach(filter => {
     const existingRows = Array.from(filter.querySelectorAll(':scope > .section-filter-row'));
     existingRows.forEach(row => {
@@ -738,6 +740,11 @@ function packFilterRows() {
       rowButtons.forEach(button => row.appendChild(button));
       filter.appendChild(row);
     });
+    if (pinnedFilter) {
+      const pinnedHeight = pinnedFilter.getBoundingClientRect().height;
+      if (pinnedPlaceholder) pinnedPlaceholder.style.height = pinnedHeight + 'px';
+      syncPinnedFilter(getPinnedTopbarHeight());
+    }
   });
 }
 
