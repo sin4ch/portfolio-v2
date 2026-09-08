@@ -40,7 +40,7 @@
   --item-secondary: rgba(18, 18, 18, 0.6);
   --text-muted-70: rgba(18, 18, 18, 0.6);
   --spacing: clamp(16px, 3vw, 40px);
-  --line-color: rgba(18, 18, 18, 0.6);
+  --line-color: rgba(18, 18, 18, 0.2);
 }
 
 @font-face {
@@ -525,10 +525,8 @@ section.filter-compact {
 .section-filter-label {
   font-family: 'InterVariable';
   font-size: 13.2px;
-  letter-spacing: 0.1em;
   line-height: 1.2;
   color: var(--text-muted);
-  text-transform: uppercase;
   margin-right: 8px;
   user-select: none;
 }
@@ -613,7 +611,7 @@ section.filter-compact {
   grid-template-columns: 1fr 2fr;
   gap: clamp(12px, 2vw, 24px);
   align-items: start;
-  padding-top: 8px;
+  padding-top: 12px;
 }
 
 .item[hidden] {
@@ -635,7 +633,7 @@ section.filter-compact {
   letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
-  padding-top: 8px;
+  padding-top: 12px;
   border-top: 0.5px solid var(--line-color);
 }
 
@@ -658,7 +656,7 @@ section.filter-compact {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px;
-  padding-top: 8px;
+  padding-top: 12px;
   border-top: 0.5px solid var(--line-color);
 }
 
@@ -1029,6 +1027,9 @@ section.filter-compact {
   line-height: 1.1;
   cursor: pointer;
   padding: 0;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--text-dark);
+  padding-bottom: 2px;
 }
 
 .home-work-link span {
@@ -1036,6 +1037,7 @@ section.filter-compact {
   margin-left: 0.3em;
   font-size: 0.9em;
   transition: transform 0.16s ease;
+  border-bottom: none;
 }
 
 .home-work-link:hover span {
@@ -1480,7 +1482,7 @@ section.filter-compact {
   --text-dark-90: rgba(255, 234, 211, 0.6);
   --item-secondary: rgba(255, 234, 211, 0.6);
   --text-muted-70: rgba(255, 234, 211, 0.6);
-  --line-color: rgba(255, 234, 211, 0.6);
+  --line-color: rgba(255, 234, 211, 0.2);
   color-scheme: dark;
 }
 
@@ -1526,8 +1528,13 @@ section.filter-compact {
 }
 
 .loading-percentage {
+  font-family: 'Geist Mono';
   font-size: 14px;
   font-weight: 400;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  width: 5ch;
+  text-align: right;
 }
 
 
@@ -1683,7 +1690,7 @@ section.filter-compact {
 
   .item-content {
     grid-column: 1;
-    padding-top: 8px;
+    padding-top: 12px;
   }
 
   .item-meta {
