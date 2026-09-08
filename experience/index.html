@@ -123,7 +123,7 @@
   <title>Experience - Osinachi Okpara</title>
   <link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/GeistMono-Regular.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=4">
 </head>
 <body class="loading-active">
 
@@ -177,6 +177,7 @@
       <button class="profile-photo mobile-profile-photo" id="mobileProfilePhoto" type="button" aria-label="Go to Home">
         <img src="/profile-picture-128.webp" alt="Osinachi Okpara" width="128" height="128" decoding="async">
       </button>
+      <span class="mobile-section-title" id="mobileSectionTitle"></span>
       <div class="mobile-top-bar-actions">
         <button class="theme-toggle" id="themeToggleMobile" aria-label="Toggle dark mode"></button>
         <button class="hamburger" id="hamburger" aria-label="Open menu">
@@ -235,29 +236,17 @@
 
         <!-- Home -->
         <section id="home" class="active">
-          <div class="section-description home-intro" id="home-intro">
-            <div class="home-name">Osinachi Okpara</div>
-            <div class="home-roles">Software Engineer <span aria-hidden="true">&middot;</span> Developer Advocate <span aria-hidden="true">&middot;</span> <a href="https://builder.aws.com/community/community-builders" target="_blank" rel="noopener">2x AWS Community Builder</a></div>
-          </div>
+          <div class="section-description home-intro" id="home-intro"><span class="home-name">Osinachi Okpara.</span> <span class="home-roles">Software Engineer. Developer Advocate. <a href="https://builder.aws.com/community/community-builders" target="_blank" rel="noopener">2x AWS Community Builder</a></span></div>
           <button class="home-work-link" type="button">See my work <span aria-hidden="true">→</span></button>
         </section>
 
         <!-- Projects -->
         <section id="projects">
-          <div class="section-description">Selected projects.</div>
           <div class="section-filter project-sort" data-sort-section="projects" aria-label="Sort projects">
             <span class="section-filter-label" aria-hidden="true">Filter by:</span>
-            <button class="section-filter-button active" type="button" data-sort-value="date" aria-pressed="true">BY DATE</button>
+            <button class="section-filter-button active" type="button" data-sort-value="date" aria-pressed="true">DATE</button>
             <button class="section-filter-button" type="button" data-sort-value="stars" aria-pressed="false">STARS</button>
             <button class="section-filter-button" type="button" data-sort-value="forks" aria-pressed="false">FORKS</button>
-          </div>
-          <!-- Intentionally hidden for now: keep this picker and the project skill tag markup because we may reuse these tag design explorations later. -->
-          <div class="tag-design-picker" aria-label="Preview project skill tag designs">
-            <button class="tag-design-button active" type="button" data-tag-style="quiet" aria-pressed="true">Quiet</button>
-            <button class="tag-design-button" type="button" data-tag-style="boxed" aria-pressed="false">Boxed</button>
-            <button class="tag-design-button" type="button" data-tag-style="rail" aria-pressed="false">Rail</button>
-            <button class="tag-design-button" type="button" data-tag-style="dot" aria-pressed="false">Dot</button>
-            <button class="tag-design-button" type="button" data-tag-style="soft" aria-pressed="false">Soft</button>
           </div>
           <div class="items">
             <div class="item">
@@ -265,7 +254,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/flappy-bird-mcp" target="_blank" rel="noopener">Flappy Bird MCP</a></div>
                 <div class="item-description">Play Flappy Bird directly in your AI assistant via Model Context Protocol</div>
-                <div class="item-tools">TypeScript, MCP</div>
                 <div class="item-stats" data-repo="sin4ch/flappy-bird-mcp"></div>
               </div>
             </div>
@@ -274,7 +262,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/nigerian-fintech-llms-txt" target="_blank" rel="noopener">Nigerian Fintech LLMs.txt</a></div>
                 <div class="item-description">Curated llms.txt files for Nigerian fintech API documentation</div>
-                <div class="item-tools">LLMs, Fintech APIs</div>
                 <div class="item-stats" data-repo="sin4ch/nigerian-fintech-llms-txt"></div>
               </div>
             </div>
@@ -283,7 +270,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/resume-to-latex" target="_blank" rel="noopener">Resume to LaTeX</a></div>
                 <div class="item-description">Convert resumes to clean LaTeX format using AI</div>
-                <div class="item-tools">Python, FastAPI, React, Tailwind CSS, Gemini</div>
                 <div class="item-stats" data-repo="sin4ch/resume-to-latex"></div>
               </div>
             </div>
@@ -292,7 +278,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/mono-mcp" target="_blank" rel="noopener">Mono Banking MCP Server</a></div>
                 <div class="item-description">MCP server for Nigerian banking operations via Mono Open Banking API</div>
-                <div class="item-tools">Python, FastMCP, PostgreSQL, Claude</div>
                 <div class="item-stats" data-repo="sin4ch/mono-mcp"></div>
               </div>
             </div>
@@ -301,7 +286,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/qgjob" target="_blank" rel="noopener">QualGent Job Orchestrator</a></div>
                 <div class="item-description">Production-ready job orchestration system for AppWright automated tests on BrowserStack and GitHub Actions runners</div>
-                <div class="item-tools">Python, Click, FastAPI, Redis, PostgreSQL, Docker, GitHub Actions</div>
                 <div class="item-stats" data-repo="sin4ch/qgjob"></div>
               </div>
             </div>
@@ -310,7 +294,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/aws-innovation-sb-api" target="_blank" rel="noopener">AWS Innovation Sandbox API</a></div>
                 <div class="item-description">FastAPI application for managing AWS Innovation Sandbox accounts and resources</div>
-                <div class="item-tools">Python, FastAPI, Boto3, AWS STS, httpx</div>
                 <div class="item-stats" data-repo="sin4ch/aws-innovation-sb-api"></div>
               </div>
             </div>
@@ -319,7 +302,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/quick-face-sort" target="_blank" rel="noopener">Quick Face Sort</a></div>
                 <div class="item-description">Scan a folder with media and sort out images & videos based on reference images</div>
-                <div class="item-tools">Python, Terraform, AWS Rekognition, AWS Lambda, S3</div>
                 <div class="item-stats" data-repo="sin4ch/quick-face-sort"></div>
               </div>
             </div>
@@ -328,7 +310,6 @@
               <div class="item-content">
                 <div class="item-title"><a href="https://github.com/sin4ch/exchange-rate-mcp" target="_blank" rel="noopener">Exchange Rate MCP Server</a></div>
                 <div class="item-description">MCP server for real-time currency exchange rate lookups</div>
-                <div class="item-tools">Python, FastMCP, ExchangeRate API</div>
                 <div class="item-stats" data-repo="sin4ch/exchange-rate-mcp"></div>
               </div>
             </div>
@@ -337,7 +318,6 @@
 
         <!-- Open Source -->
         <section id="opensource">
-          <div class="section-description">Contributions to open source projects.</div>
           <div class="items">
             <div class="item">
               <div class="item-meta">2026</div>
@@ -485,7 +465,6 @@
 
         <!-- Writing -->
         <section id="writing">
-          <div class="section-description">Articles on cloud infrastructure, DevOps, and AI agents.</div>
           <div class="section-filter" data-filter-section="writing" aria-label="Filter writing">
             <span class="section-filter-label" aria-hidden="true">Filter by:</span>
             <button class="section-filter-button active" type="button" data-filter-value="all" aria-pressed="true">ALL</button>
@@ -612,7 +591,6 @@
 
         <!-- Talks -->
         <section id="talks">
-          <div class="section-description">Speaking and hosting engagements at industry events and conferences.</div>
           <div class="section-filter" data-filter-section="talks" aria-label="Filter speaking and hosting">
             <span class="section-filter-label" aria-hidden="true">Filter by:</span>
             <button class="section-filter-button active" type="button" data-filter-value="favourite" aria-pressed="true">FAVOURITES</button>
@@ -866,13 +844,11 @@
 
         <!-- Gallery -->
         <section id="gallery">
-          <div class="section-description">Personal gallery.</div>
           <div class="bento-grid" id="gallery-grid"></div>
         </section>
 
         <!-- Experience -->
         <section id="experience">
-          <div class="section-description">Professional experience in software engineering, technical writing, and developer advocacy.</div>
           <div class="items">
             <div class="item">
               <div class="item-meta"></div>
@@ -997,6 +973,6 @@
     </div>
   </div>
   <script src="/gallery.js" defer></script>
-  <script src="/main.js" defer></script>
+  <script src="/main.js?v=4" defer></script>
 </body>
 </html>

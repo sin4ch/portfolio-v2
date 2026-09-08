@@ -172,6 +172,17 @@ function showSection(targetId, updateUrl = true) {
       nav.classList.add('active');
     }
   });
+  const mobileSectionTitle = document.getElementById('mobileSectionTitle');
+  if (mobileSectionTitle) {
+    if (targetId === 'home') {
+      mobileSectionTitle.textContent = '';
+    } else {
+      const activeNav = [...navItems].find(nav => nav.dataset.target === targetId);
+      mobileSectionTitle.textContent = activeNav
+        ? (activeNav.textContent.trim() || activeNav.getAttribute('aria-label') || targetId)
+        : targetId;
+    }
+  }
   if (updateUrl) {
     history.pushState({ section: targetId }, '', getSectionPath(targetId));
   }
@@ -477,34 +488,6 @@ function initProjectSort() {
     applySort(buttons.find(button => button.classList.contains('active')) || buttons[0]);
   });
 }
-
-function initProjectTagDesignPicker() {
-  const projectsSection = document.getElementById('projects');
-  const picker = document.querySelector('.tag-design-picker');
-  if (!projectsSection || !picker) return;
-
-  projectsSection.dataset.tagStyle = picker.querySelector('.active')?.dataset.tagStyle || 'quiet';
-
-  projectsSection.querySelectorAll('.item-tools').forEach(tools => {
-    if (tools.dataset.formatted === 'true') return;
-    const tags = tools.textContent.split(',').map(tag => tag.trim()).filter(Boolean);
-    tools.dataset.formatted = 'true';
-    tools.innerHTML = tags.map(tag => `<span class="skill-tag">${tag}</span>`).join('');
-  });
-
-  picker.querySelectorAll('.tag-design-button').forEach(button => {
-    button.addEventListener('click', () => {
-      projectsSection.dataset.tagStyle = button.dataset.tagStyle;
-      picker.querySelectorAll('.tag-design-button').forEach(option => {
-        const isActive = option === button;
-        option.classList.toggle('active', isActive);
-        option.setAttribute('aria-pressed', String(isActive));
-      });
-    });
-  });
-}
-
-
 
 /* ============================================
    7. SCROLL INDICATOR
@@ -1003,5 +986,4 @@ function fetchGitHubStats() {
 createRoundedFavicon();
 initSectionFilters();
 initProjectSort();
-initProjectTagDesignPicker();
 initLoadingSequence();

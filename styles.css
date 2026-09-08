@@ -171,11 +171,16 @@ body {
 
 a {
   color: var(--text-dark);
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--text-dark);
+  padding-bottom: 1px;
 }
 
-a:hover {
-  text-decoration: underline;
+a.contact-icon,
+a.experience-logo-link,
+a.opensource-card-link {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 a,
@@ -253,7 +258,7 @@ body.is-resizing .sidebar {
 
 .nav-item {
   font-family: inherit;
-  font-size: 13.2px;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -385,11 +390,6 @@ body.is-resizing .sidebar {
   text-decoration: none;
 }
 
-.contact-bar .dot {
-  color: var(--text-muted);
-  font-size: 11px;
-}
-
 .contact-icon {
   display: inline-flex;
   align-items: center;
@@ -411,7 +411,7 @@ body.is-resizing .sidebar {
   border: 1px solid var(--line-color);
   color: var(--text-dark);
   font-family: 'InterVariable';
-  font-size: 10px;
+  font-size: 0.85rem;
   font-weight: 400;
   line-height: 1.2;
   text-transform: uppercase;
@@ -498,18 +498,10 @@ section.filter-compact {
 
 .section-description {
   font-family: 'InterVariable';
-  font-size: clamp(24px, 4vw, 35px);
+  font-size: 1rem;
   line-height: 1.3;
   color: var(--text-dark);
   margin-bottom: clamp(20px, 3vw, 32px);
-}
-
-.section-description strong {
-  font-weight: 500;
-}
-
-.section-description:not(.home-intro) {
-  display: none;
 }
 
 .section-filter {
@@ -523,8 +515,10 @@ section.filter-compact {
 }
 
 .section-filter-label {
-  font-family: 'InterVariable';
-  font-size: 13.2px;
+  font-family: 'Geist Mono';
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   line-height: 1.2;
   color: var(--text-muted);
   margin-right: 8px;
@@ -538,7 +532,7 @@ section.filter-compact {
   color: var(--text-muted);
   cursor: pointer;
   font-family: inherit;
-  font-size: 13.2px;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
   line-height: 1.2;
   padding: 2px 6px;
@@ -562,42 +556,6 @@ section.filter-compact {
   border-color: var(--text-dark);
   color: var(--bg-light) !important;
   z-index: 3;
-}
-
-.tag-design-picker {
-  /* Temporarily hidden, not deleted. This lets us revive project tag design previews without rebuilding the implementation. */
-  display: none;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: -8px 0 16px;
-  font-family: 'Geist Mono';
-}
-
-.tag-design-button {
-  border: 1px solid color-mix(in srgb, var(--text-muted) 72%, transparent);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  padding: 3px 8px;
-  text-transform: uppercase;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-}
-
-.tag-design-button:hover,
-.tag-design-button.active {
-  border-color: var(--text-dark);
-  color: var(--text-dark);
-}
-
-.tag-design-button.active {
-  background: var(--text-dark);
-  color: var(--bg-light);
 }
 
 .items {
@@ -629,7 +587,7 @@ section.filter-compact {
 
 .item-meta {
   font-family: 'Geist Mono';
-  font-size: 13.2px;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -673,20 +631,20 @@ section.filter-compact {
 
 .item-tags {
   font-family: 'Geist Mono';
-  font-size: 24px;
+  font-size: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
 }
 
 .item-title {
-  font-size: 16.72px;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.25;
 }
 
 .item-subtitle {
-  font-size: 16.72px;
+  font-size: 1rem;
   line-height: 1.35;
   color: var(--item-secondary);
 }
@@ -694,19 +652,6 @@ section.filter-compact {
 .item-content a {
   color: inherit;
   text-decoration: none;
-}
-
-.item-content a:hover {
-  text-decoration: underline;
-}
-
-.item-content a[target="_blank"]::after {
-  content: "↗";
-  display: inline-block;
-  margin-left: 0.2em;
-  font-size: 0.7em;
-  line-height: 1;
-  vertical-align: 0.12em;
 }
 
 .date-text {
@@ -723,7 +668,7 @@ section.filter-compact {
   border: 1px solid var(--text-dark);
   padding: 2px 6px;
   border-radius: 2px;
-  font-size: 12px;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
   line-height: 1.2;
 }
@@ -732,12 +677,7 @@ section.filter-compact {
   color: inherit;
 }
 
-.source-name {
-  font-family: 'Geist Mono';
-}
-
 #experience .item-subtitle,
-#experience .experience-location,
 #experience .experience-duration,
 #opensource .item-subtitle {
   font-family: 'InterVariable';
@@ -755,11 +695,6 @@ section.filter-compact {
 #experience .item-content > *,
 #opensource .item-content > * {
   flex-basis: auto;
-}
-
-#experience .item-content a[target="_blank"]::after,
-#opensource .item-content a[target="_blank"]::after {
-  content: none;
 }
 
 .experience-logo-link {
@@ -802,25 +737,17 @@ section.filter-compact {
   text-decoration: underline;
 }
 
+#opensource .opensource-card-link:focus,
+#opensource .opensource-card-link:focus-visible {
+  outline: none;
+}
+
 .source-ref {
   display: inline;
 }
 
-.source-icon {
-  width: 1.05em;
-  height: 1.05em;
-  box-sizing: border-box;
-  padding: 1px;
-  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--bg-light) 42%, transparent);
-  margin-right: 6px;
-  object-fit: contain;
-  vertical-align: -0.18em;
-}
-
 .item-description {
-  font-size: 16.72px;
+  font-size: 1rem;
   line-height: 1.35;
   color: var(--item-secondary);
   margin-top: 2px;
@@ -840,75 +767,9 @@ section.filter-compact {
   color: inherit;
 }
 
-.item-tools {
-  /* Keep project skill tags in the DOM for future design use, but do not render them in the current UI. */
-  display: none;
-  font-family: 'InterVariable';
-  font-size: 13.2px;
-  color: var(--text-muted);
-  flex-wrap: wrap;
-  gap: 5px 8px;
-  margin-top: 4px;
-}
-
-.skill-tag {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.45em;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-}
-
-#projects[data-tag-style="quiet"] .skill-tag:not(:last-child)::after {
-  content: ",";
-}
-
-#projects[data-tag-style="boxed"] .item-tools {
-  gap: 6px;
-}
-
-#projects[data-tag-style="boxed"] .skill-tag {
-  border: 1px solid color-mix(in srgb, var(--text-muted) 64%, transparent);
-  border-radius: 2px;
-  padding: 1px 5px;
-}
-
-#projects[data-tag-style="rail"] .item-tools {
-  gap: 4px 10px;
-}
-
-#projects[data-tag-style="rail"] .skill-tag {
-  border-left: 2px solid var(--text-muted);
-  padding-left: 6px;
-}
-
-#projects[data-tag-style="dot"] .item-tools {
-  gap: 4px 12px;
-}
-
-#projects[data-tag-style="dot"] .skill-tag::before {
-  content: "";
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: currentColor;
-  margin-right: 7px;
-  opacity: 0.72;
-}
-
-#projects[data-tag-style="soft"] .item-tools {
-  gap: 6px;
-}
-
-#projects[data-tag-style="soft"] .skill-tag {
-  border: 1px solid color-mix(in srgb, var(--text-muted) 34%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text-muted) 9%, transparent);
-  padding: 2px 8px;
-}
-
 .item-stats {
   font-family: 'Geist Mono';
-  font-size: 10px;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
@@ -925,7 +786,7 @@ section.filter-compact {
   border: 1px solid var(--text-dark);
   padding: 2px 6px;
   border-radius: 2px;
-  font-size: 10px;
+  font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -943,7 +804,7 @@ section.filter-compact {
   border: 1px solid var(--text-dark);
   padding: 2px 6px;
   border-radius: 2px;
-  font-size: 12px;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
 }
 
@@ -958,7 +819,7 @@ section.filter-compact {
 }
 
 #talks .item-tags {
-  font-size: 12px;
+  font-size: 0.85rem;
   margin-top: 2px;
   line-height: 1.2;
 }
@@ -973,13 +834,11 @@ section.filter-compact {
    7. HOME SECTION
    ============================================ */
 .home-intro {
-  --home-name-size: clamp(32px, 4.8vw, 52px);
-  --home-role-size: clamp(17px, 1.85vw, 23px);
+  --home-name-size: 1.5rem;
+  --home-role-size: 1.5rem;
   font-size: var(--home-name-size);
-  line-height: 1.08;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  font-weight: 500;
+  line-height: 1.35;
   margin-top: 0;
   max-width: min(760px, 100%);
 }
@@ -989,28 +848,16 @@ section.filter-compact {
   text-decoration: none;
 }
 
-.home-intro a:hover {
-  text-decoration: underline;
-}
-
-.home-intro a[target="_blank"]::after {
-  content: "↗";
-  display: inline-block;
-  margin-left: 0.2em;
-  font-size: 0.7em;
-  line-height: 1;
-  vertical-align: 0.12em;
-}
-
 .home-name {
   color: var(--text-dark);
-  font-size: calc(var(--home-role-size) + 4px);
+  font-size: var(--home-name-size);
   line-height: 1.35;
 }
 
 .home-roles {
   color: var(--item-secondary);
   font-size: var(--home-role-size);
+  font-weight: 400;
   line-height: 1.35;
 }
 
@@ -1023,13 +870,13 @@ section.filter-compact {
   background: transparent;
   color: var(--text-dark);
   font-family: 'InterVariable';
-  font-size: 14px;
+  font-size: 1rem;
   line-height: 1.1;
   cursor: pointer;
   padding: 0;
   text-decoration: none;
   border-bottom: 1px dashed var(--text-dark);
-  padding-bottom: 2px;
+  padding-bottom: 1px;
 }
 
 .home-work-link span {
@@ -1179,20 +1026,11 @@ section.filter-compact {
   opacity: 1;
 }
 
-.carousel-skeleton {
-  height: 100%;
-  width: 140px;
-  flex-shrink: 0;
-  margin-right: 8px;
-  background-color: var(--line-color);
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-}
-
 .photo-carousel.loading, .photo-carousel .error {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 0.85rem;
   color: var(--text-muted);
   height: 100%;
 }
@@ -1208,7 +1046,7 @@ section.filter-compact {
   width: 100%;
   height: 100%;
   --lightbox-control-gap: 68px;
-  --lightbox-counter-size: clamp(13px, 1.1vw, 18px);
+  --lightbox-counter-size: 1rem;
   padding:
     calc(var(--spacing) + var(--lightbox-control-gap) + 38px)
     var(--spacing)
@@ -1302,7 +1140,7 @@ section.filter-compact {
   gap: 8px;
   color: #ffead3;
   font-family: 'InterVariable';
-  font-size: clamp(11px, 1.8vw, 12px);
+  font-size: 0.85rem;
   line-height: 1.2;
   text-transform: none;
   text-align: center;
@@ -1318,7 +1156,7 @@ section.filter-compact {
 }
 
 .lightbox-hint-arrow {
-  font-size: 30px;
+  font-size: 1.5rem;
   line-height: 1;
   font-weight: 300;
 }
@@ -1413,7 +1251,7 @@ section.filter-compact {
   background: transparent;
   border: 1px solid rgba(255, 234, 211, 0.35);
   color: rgba(255, 234, 211, 0.68);
-  font-size: 16px;
+  font-size: 1.5rem;
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -1438,7 +1276,7 @@ section.filter-compact {
   border: none;
   border-radius: 0;
   color: #ffead3;
-  font-size: 30px;
+  font-size: 1.5rem;
   width: 38px;
   height: 38px;
 }
@@ -1529,7 +1367,7 @@ section.filter-compact {
 
 .loading-percentage {
   font-family: 'Geist Mono';
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 400;
   letter-spacing: 0.1em;
   display: inline-block;
@@ -1625,8 +1463,7 @@ section.filter-compact {
   }
 
   .scroll-indicator-btn svg,
-  .gallery-skeleton,
-  .carousel-skeleton {
+  .gallery-skeleton {
     animation: none !important;
   }
 }
@@ -1757,6 +1594,18 @@ section.filter-compact {
     gap: 12px;
   }
 
+  .mobile-section-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'InterVariable';
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
   .mobile-top-bar .profile-photo {
     display: block;
   }
@@ -1853,7 +1702,7 @@ section.filter-compact {
   }
 
   .nav-item {
-    font-size: 32px;
+    font-size: 2rem;
     letter-spacing: 0;
     line-height: 1.1;
     padding: 2px 0;
@@ -1911,10 +1760,10 @@ section.filter-compact {
   }
 
   .home-intro {
-    --home-name-size: clamp(28px, 8vw, 42px);
-    --home-role-size: clamp(16px, 4.4vw, 20px);
+    --home-name-size: 1.5rem;
+    --home-role-size: 1.5rem;
     margin-top: 0;
-    line-height: 1.12 !important;
+    line-height: 1.35 !important;
   }
 
   .home-work-link {
@@ -1923,7 +1772,7 @@ section.filter-compact {
   }
 
   .section-description {
-    font-size: clamp(24px, 6vw, 32px);
+    font-size: 1rem;
     margin-bottom: 20px;
   }
 
@@ -1973,7 +1822,7 @@ section.filter-compact {
     right: var(--spacing);
     width: 44px;
     height: 44px;
-    font-size: 18px;
+    font-size: 1rem;
     border: none;
   }
 
@@ -2028,10 +1877,10 @@ section.filter-compact {
   }
 
   .home-intro {
-    --home-name-size: clamp(27px, 8.4vw, 38px);
-    --home-role-size: clamp(15px, 4.6vw, 19px);
+    --home-name-size: 1.5rem;
+    --home-role-size: 1.5rem;
     margin-top: 0;
-    line-height: 1.12 !important;
+    line-height: 1.35 !important;
   }
 
   .profile-photo {
