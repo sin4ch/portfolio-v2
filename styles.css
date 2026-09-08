@@ -173,7 +173,7 @@ a {
   color: var(--text-dark);
   text-decoration: none;
   border-bottom: 1px dashed var(--text-dark);
-  padding-bottom: 1px;
+  padding-bottom: 0.5px;
 }
 
 a.contact-icon,
@@ -181,6 +181,11 @@ a.experience-logo-link,
 a.opensource-card-link {
   border-bottom: none;
   padding-bottom: 0;
+}
+
+.link-underline {
+  border-bottom: 1px dashed var(--text-dark);
+  padding-bottom: 0.5px;
 }
 
 a,
@@ -733,13 +738,17 @@ section.filter-compact {
   display: contents;
 }
 
-#opensource .item-content:hover .item-title {
-  text-decoration: underline;
+#opensource .opensource-card-link,
+#opensource .opensource-card-link:focus,
+#opensource .opensource-card-link:focus-visible,
+#opensource .opensource-card-link:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
-#opensource .opensource-card-link:focus,
-#opensource .opensource-card-link:focus-visible {
-  outline: none;
+#opensource .item-content,
+#opensource .item-content * {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .source-ref {
@@ -876,7 +885,7 @@ section.filter-compact {
   padding: 0;
   text-decoration: none;
   border-bottom: 1px dashed var(--text-dark);
-  padding-bottom: 1px;
+  padding-bottom: 0.5px;
 }
 
 .home-work-link span {
