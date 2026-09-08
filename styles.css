@@ -1734,11 +1734,7 @@ section.filter-compact {
   }
 
   .scroll-indicator-up {
-    top: calc(var(--spacing) + 44px);
-  }
-
-  .scroll-indicator-up {
-    top: calc(var(--spacing) + 44px);
+    top: calc(var(--spacing) + 64px);
   }
 
   .hamburger {
@@ -1964,11 +1960,7 @@ section.filter-compact {
   }
 
   .scroll-indicator-up {
-    top: calc(var(--spacing) + 44px + 10px);
-  }
-
-  .scroll-indicator-up {
-    top: calc(var(--spacing) + 44px);
+    top: calc(var(--spacing) + 74px);
   }
 
   .contact-bar {
