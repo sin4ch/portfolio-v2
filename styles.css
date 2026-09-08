@@ -104,8 +104,7 @@
 
 html {
   min-height: 100%;
-  min-height: 100dvh;
-  overflow-x: hidden;
+  min-height: 100svh;
   scroll-behavior: smooth;
   touch-action: pan-y;
   scrollbar-width: thin;
@@ -117,8 +116,8 @@ html {
 
 body {
   min-height: 100%;
-  min-height: 100dvh;
-  overflow-x: hidden;
+  min-height: 100svh;
+  overflow-x: clip;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
@@ -132,7 +131,7 @@ html.loading-active,
 body.loading-active {
   overflow: hidden;
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
   overscroll-behavior: none;
   touch-action: none;
 }
@@ -199,10 +198,10 @@ button:focus:not(:focus-visible),
    ============================================ */
 .main-wrapper {
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
   touch-action: pan-y;
   transform: translateY(100vh);
-  transform: translateY(100dvh);
+  transform: translateY(100svh);
   transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
@@ -471,7 +470,7 @@ section {
   display: none;
   flex-direction: column;
   min-height: calc(100vh - (var(--spacing) * 2));
-  min-height: calc(100dvh - (var(--spacing) * 2));
+  min-height: calc(100svh - (var(--spacing) * 2));
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
@@ -501,12 +500,17 @@ section.filter-compact {
 }
 
 .section-filter {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   flex-wrap: wrap;
   gap: 0;
-  margin-bottom: 16px;
+  margin-bottom: 0;
+  padding: 8px 0 16px;
+  background-color: var(--bg-light);
   font-family: 'Geist Mono';
 }
 
@@ -615,7 +619,11 @@ section.filter-compact {
 }
 
 .items > .item:has(.item-meta:empty):first-child .item-content,
-.items > .item:has(.item-meta:empty).filter-first-visible .item-content,
+.items > .item:has(.item-meta:empty).filter-first-visible .item-content {
+  border-top: none;
+  padding-top: 12px;
+}
+
 #experience .items > .item:first-child .item-content {
   border-top: none;
   padding-top: 0;
@@ -734,6 +742,44 @@ section.filter-compact {
 #opensource .opensource-card-link:focus-visible,
 #opensource .opensource-card-link:active {
   outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Clickable rows (Writing excluded): the entry's main link covers the whole card */
+#projects .item-content,
+#talks .item-content,
+#experience .item-content {
+  position: relative;
+  cursor: pointer;
+}
+
+#projects .item-title > a::after,
+#talks .item-title > a::after,
+#experience .source-ref::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+#projects .item-title > a:focus,
+#projects .item-title > a:focus-visible,
+#projects .item-title > a:active,
+#talks .item-title > a:focus,
+#talks .item-title > a:focus-visible,
+#talks .item-title > a:active,
+#experience .source-ref:focus,
+#experience .source-ref:focus-visible,
+#experience .source-ref:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#projects .item-content,
+#projects .item-content *,
+#talks .item-content,
+#talks .item-content *,
+#experience .item-content,
+#experience .item-content * {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -1374,7 +1420,8 @@ section.filter-compact {
   transition: opacity 0.3s ease, visibility 0.3s ease;
   z-index: 95;
   background: var(--bg-light);
-  border: 1px solid var(--line-color);
+  border: none;
+  box-shadow: 0 0 0 1px var(--line-color);
   border-radius: 50%;
   width: 39px;
   height: 39px;
@@ -1388,12 +1435,17 @@ section.filter-compact {
 }
 
 .scroll-indicator-btn:hover {
-  border-color: var(--text-muted);
+  box-shadow: 0 0 0 1px var(--text-muted);
 }
 
 .scroll-indicator-btn.visible {
   opacity: 1;
   visibility: visible;
+}
+
+#scroll-sentinel {
+  height: 1px;
+  pointer-events: none;
 }
 
 .scroll-indicator-down {
@@ -1404,10 +1456,16 @@ section.filter-compact {
   top: 20px;
 }
 
+html:has(#projects.active) .scroll-indicator-up,
+html:has(#writing.active) .scroll-indicator-up,
+html:has(#talks.active) .scroll-indicator-up {
+  top: 64px;
+}
+
 .scroll-indicator-btn svg {
   width: 20px;
   height: 20px;
-  stroke: var(--text-muted);
+  fill: var(--text-muted);
   will-change: transform;
 }
 
@@ -1548,7 +1606,7 @@ section.filter-compact {
   body.menu-active {
     overflow: hidden;
     height: 100vh;
-    height: 100dvh;
+    height: 100svh;
     overscroll-behavior: none;
     touch-action: none;
   }
@@ -1559,9 +1617,9 @@ section.filter-compact {
     justify-content: space-between;
     gap: 12px;
     padding:
-      calc(var(--spacing) + env(safe-area-inset-top, 0px))
+      16px
       calc(var(--spacing) + env(safe-area-inset-right, 0px))
-      12px
+      16px
       calc(var(--spacing) + env(safe-area-inset-left, 0px));
     position: fixed;
     top: 0;
@@ -1608,6 +1666,15 @@ section.filter-compact {
     margin-top: 0;
   }
 
+  /* TEMP DEBUG: alignment guides, remove before shipping */
+  .mobile-top-bar {
+    border-bottom: 1px solid red;
+  }
+
+  .section-filter {
+    border-bottom: 1px solid red;
+  }
+
   .scroll-indicator-btn.visible {
     opacity: 1;
     visibility: visible;
@@ -1621,8 +1688,23 @@ section.filter-compact {
     pointer-events: none;
   }
 
+  .section-filter {
+    position: sticky;
+    top: 60px;
+    z-index: 50;
+    margin-bottom: 0;
+    padding: 16px 0;
+    background-color: var(--bg-light);
+  }
+
   .scroll-indicator-up {
     top: calc(var(--spacing) + 44px);
+  }
+
+  html:has(#projects.active) .scroll-indicator-up,
+  html:has(#writing.active) .scroll-indicator-up,
+  html:has(#talks.active) .scroll-indicator-up {
+    top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 128px);
   }
 
   .hamburger {
@@ -1633,12 +1715,12 @@ section.filter-compact {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     min-height: 100vh;
-    min-height: 100dvh;
-    padding-top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 44px + 64px);
+    min-height: 100svh;
+    padding-top: 128px;
   }
 
   body.home-active .layout {
-    padding-top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 44px);
+    padding-top: 64px;
   }
 
   .nav-links .theme-toggle {
@@ -1657,7 +1739,7 @@ section.filter-compact {
     align-items: flex-start;
     gap: 24px;
     padding:
-      calc(var(--spacing) + env(safe-area-inset-top, 0px) + 44px + 64px)
+      128px
       calc(var(--spacing) + env(safe-area-inset-right, 0px))
       calc(72px + env(safe-area-inset-bottom, 0px))
       calc(var(--spacing) + env(safe-area-inset-left, 0px));
@@ -1695,6 +1777,11 @@ section.filter-compact {
     padding: 2px 0;
     text-align: left;
     text-transform: none;
+    font-weight: 400;
+  }
+
+  .nav-item.active {
+    font-weight: 500;
   }
 
   .sidebar .nav-item[data-target="home"] {
@@ -1806,8 +1893,8 @@ section.filter-compact {
 
   .lightbox-close {
     position: absolute;
-    top: calc(var(--spacing) + env(safe-area-inset-top, 0px) - 8px);
-    right: calc(var(--spacing) + env(safe-area-inset-right, 0px));
+    top: calc(var(--spacing) + 10px);
+    right: 0;
     width: 44px;
     height: 44px;
     font-size: var(--font-size-body);
@@ -1844,6 +1931,12 @@ section.filter-compact {
 
   .scroll-indicator-up {
     top: calc(var(--spacing) + 44px + 10px);
+  }
+
+  html:has(#projects.active) .scroll-indicator-up,
+  html:has(#writing.active) .scroll-indicator-up,
+  html:has(#talks.active) .scroll-indicator-up {
+    top: calc(var(--spacing) + env(safe-area-inset-top, 0px) + 128px);
   }
 
   .contact-bar {

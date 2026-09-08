@@ -197,6 +197,7 @@ function showSection(targetId, updateUrl = true) {
   positionCarousel();
   updateScrollIndicator();
   scheduleScrollIndicatorUpdate();
+  updateMobileStickyFilter();
 }
 
 function handleInitialRoute() {
@@ -497,7 +498,9 @@ const scrollIndicatorUp = document.getElementById('scroll-indicator-up');
 let lastScrollTop = 0;
 let scrollDirection = 'down';
 let scrollIndicatorUpdateFrame = 0;
-const SCROLL_EPSILON = 1;
+// A sliver of scrollable overflow (URL-bar breathing, rounding) is not real
+// scrolling: if the whole page barely moves, keep the arrows hidden.
+const SCROLL_EPSILON = 64;
 
 function hideScrollIndicators() {
   scrollIndicatorDown?.classList.remove('visible');
@@ -505,6 +508,7 @@ function hideScrollIndicators() {
 }
 
 function updateScrollIndicator() {
+  updateMobileStickyFilter();
   const scrollRoot = document.scrollingElement || document.documentElement;
   const currentScrollTop = Math.max(0, scrollRoot.scrollTop);
   const homeSection = document.getElementById('home');
@@ -532,7 +536,7 @@ function updateScrollIndicator() {
     return;
   }
 
-  const isAtBottom = currentScrollTop >= maxScrollTop - 20;
+  const isAtBottom = currentScrollTop >= maxScrollTop - 64;
   const isAtTop = currentScrollTop <= 20;
 
   if (currentScrollTop < lastScrollTop) {
@@ -543,7 +547,7 @@ function updateScrollIndicator() {
   lastScrollTop = currentScrollTop;
 
   const showUp = isScrollable && scrollDirection === 'up' && !isAtTop;
-  const showDown = isScrollable && !isAtBottom && !showUp;
+  const showDown = isScrollable && !isAtBottom && !showUp && !pageBottomVisible;
   if (scrollIndicatorDown) {
     scrollIndicatorDown.classList.toggle('visible', showDown);
   }
@@ -589,6 +593,105 @@ if (window.visualViewport) {
 }
 
 window.addEventListener('pageshow', scheduleScrollIndicatorUpdate);
+window.addEventListener('resize', scheduleScrollIndicatorUpdate);
+window.addEventListener('scrollend', updateScrollIndicator);
+window.addEventListener('load', scheduleScrollIndicatorUpdate);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => scheduleScrollIndicatorUpdate());
+}
+
+// Page-end sentinel: hides the down button whenever the true bottom of the
+// page is visible, regardless of what the height math says.
+let pageBottomVisible = false;
+const scrollSentinel = document.getElementById('scroll-sentinel');
+if (scrollSentinel && typeof IntersectionObserver === 'function') {
+  new IntersectionObserver(entries => {
+    pageBottomVisible = entries.some(entry => entry.isIntersecting);
+    scheduleScrollIndicatorUpdate();
+  }, { root: null, threshold: 0 }).observe(scrollSentinel);
+}
+
+// Capture scrolls from any scroller, not just the window.
+document.addEventListener('scroll', () => scheduleScrollIndicatorUpdate(), { passive: true, capture: true });
+
+
+/* ============================================
+   6b. MOBILE STICKY FILTER (pins the filter bar under the top nav;
+   backs up CSS position:sticky where it does not hold)
+   ============================================ */
+const mobileStickyMQ = window.matchMedia('(max-width: 768px)');
+let stuckFilter = null;
+let stuckPlaceholder = null;
+
+function getMobileTopbarHeight() {
+  if (!mobileStickyMQ.matches) return 0;
+  const bar = document.getElementById('mobile-top-bar');
+  if (!bar) return 0;
+  return bar.getBoundingClientRect().height;
+}
+
+function unstickMobileFilter() {
+  if (!stuckFilter) return;
+  stuckFilter.style.position = '';
+  stuckFilter.style.top = '';
+  stuckFilter.style.left = '';
+  stuckFilter.style.width = '';
+  stuckFilter.style.zIndex = '';
+  if (stuckPlaceholder && stuckPlaceholder.parentNode) {
+    stuckPlaceholder.parentNode.removeChild(stuckPlaceholder);
+  }
+  stuckPlaceholder = null;
+  stuckFilter = null;
+}
+
+function syncStuckFilterGeometry(topbarH) {
+  if (!stuckFilter || !stuckPlaceholder) return;
+  const rect = stuckPlaceholder.getBoundingClientRect();
+  stuckFilter.style.top = topbarH + 'px';
+  stuckFilter.style.left = rect.left + 'px';
+  stuckFilter.style.width = rect.width + 'px';
+}
+
+function updateMobileStickyFilter() {
+  if (!mobileStickyMQ.matches) {
+    unstickMobileFilter();
+    return;
+  }
+  const activeSection = document.querySelector('section.active');
+  const activeFilter = activeSection ? activeSection.querySelector('.section-filter') : null;
+  if (stuckFilter && stuckFilter !== activeFilter) {
+    unstickMobileFilter();
+  }
+  if (!activeFilter) {
+    unstickMobileFilter();
+    return;
+  }
+  const topbarH = getMobileTopbarHeight();
+  if (stuckFilter) {
+    if (stuckPlaceholder) {
+      const placeholderTop = stuckPlaceholder.getBoundingClientRect().top;
+      if (placeholderTop >= topbarH - 1) {
+        unstickMobileFilter();
+        return;
+      }
+    }
+    syncStuckFilterGeometry(topbarH);
+    return;
+  }
+  const rect = activeFilter.getBoundingClientRect();
+  if (rect.height > 0 && rect.top < topbarH - 1) {
+    stuckPlaceholder = document.createElement('div');
+    stuckPlaceholder.setAttribute('aria-hidden', 'true');
+    stuckPlaceholder.style.height = rect.height + 'px';
+    activeFilter.parentNode.insertBefore(stuckPlaceholder, activeFilter);
+    stuckFilter = activeFilter;
+    stuckFilter.style.position = 'fixed';
+    stuckFilter.style.zIndex = '50';
+    syncStuckFilterGeometry(topbarH);
+  }
+}
+
+window.addEventListener('resize', updateMobileStickyFilter);
 
 
 
@@ -814,10 +917,14 @@ if (!isTouchDevice) {
     return target;
   }
 
-  function updateFollowerState(target) {
-    var ease = target.rect ? EASE_ATTRACT : EASE_DEFAULT;
-    followerX += (target.x - followerX) * ease;
-    followerY += (target.y - followerY) * ease;
+    function updateFollowerState(target) {
+      var ease = target.rect ? EASE_ATTRACT : EASE_DEFAULT;
+      followerX += (target.x - followerX) * ease;
+      followerY += (target.y - followerY) * ease;
+
+      // Keep the follower inside the viewport so the page never gains a horizontal scrollbar
+      followerX = Math.min(Math.max(followerX, 16), window.innerWidth - 16);
+      followerY = Math.min(Math.max(followerY, 16), window.innerHeight - 16);
 
     // Lerp shape — slow approach, fast retreat
     var shapeEase = target.rect ? SHAPE_EASE_IN : SHAPE_EASE_OUT;
