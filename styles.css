@@ -41,6 +41,11 @@
   --text-muted-70: rgba(18, 18, 18, 0.6);
   --spacing: clamp(16px, 3vw, 40px);
   --line-color: rgba(18, 18, 18, 0.2);
+  --font-size-body: 1rem;
+  --font-size-small: 0.85rem;
+  --font-size-badge: 0.8rem;
+  --font-size-large: 1.5rem;
+  --font-size-menu: 2rem;
 }
 
 @font-face {
@@ -172,20 +177,6 @@ body {
 a {
   color: var(--text-dark);
   text-decoration: none;
-  border-bottom: 1px dashed var(--text-dark);
-  padding-bottom: 0.5px;
-}
-
-a.contact-icon,
-a.experience-logo-link,
-a.opensource-card-link {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.link-underline {
-  border-bottom: 1px dashed var(--text-dark);
-  padding-bottom: 0.5px;
 }
 
 a,
@@ -263,7 +254,7 @@ body.is-resizing .sidebar {
 
 .nav-item {
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -416,7 +407,7 @@ body.is-resizing .sidebar {
   border: 1px solid var(--line-color);
   color: var(--text-dark);
   font-family: 'InterVariable';
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   font-weight: 400;
   line-height: 1.2;
   text-transform: uppercase;
@@ -503,7 +494,7 @@ section.filter-compact {
 
 .section-description {
   font-family: 'InterVariable';
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   line-height: 1.3;
   color: var(--text-dark);
   margin-bottom: clamp(20px, 3vw, 32px);
@@ -521,7 +512,7 @@ section.filter-compact {
 
 .section-filter-label {
   font-family: 'Geist Mono';
-  font-size: 0.85rem;
+  font-size: var(--font-size-badge);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   line-height: 1.2;
@@ -537,7 +528,7 @@ section.filter-compact {
   color: var(--text-muted);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: var(--font-size-badge);
   letter-spacing: 0.1em;
   line-height: 1.2;
   padding: 2px 6px;
@@ -592,7 +583,7 @@ section.filter-compact {
 
 .item-meta {
   font-family: 'Geist Mono';
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -636,20 +627,20 @@ section.filter-compact {
 
 .item-tags {
   font-family: 'Geist Mono';
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
 }
 
 .item-title {
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   font-weight: 500;
   line-height: 1.25;
 }
 
 .item-subtitle {
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   line-height: 1.35;
   color: var(--item-secondary);
 }
@@ -673,7 +664,7 @@ section.filter-compact {
   border: 1px solid var(--text-dark);
   padding: 2px 6px;
   border-radius: 2px;
-  font-size: 0.85rem;
+  font-size: var(--font-size-badge);
   letter-spacing: 0.1em;
   line-height: 1.2;
 }
@@ -756,7 +747,7 @@ section.filter-compact {
 }
 
 .item-description {
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   line-height: 1.35;
   color: var(--item-secondary);
   margin-top: 2px;
@@ -778,7 +769,7 @@ section.filter-compact {
 
 .item-stats {
   font-family: 'Geist Mono';
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
@@ -788,14 +779,16 @@ section.filter-compact {
   margin-top: 4px;
 }
 
-.stat-badge {
+.stat-badge,
+.role-badge {
   font-family: 'Geist Mono';
   background: var(--bg-light);
   color: var(--text-dark);
   border: 1px solid var(--text-dark);
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 2px;
-  font-size: 0.85rem;
+  font-size: var(--font-size-badge);
+  letter-spacing: 0.1em;
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -804,17 +797,6 @@ section.filter-compact {
 .stat-badge svg {
   width: 10px;
   height: 10px;
-}
-
-.role-badge {
-  font-family: 'Geist Mono';
-  background: var(--bg-light);
-  color: var(--text-dark);
-  border: 1px solid var(--text-dark);
-  padding: 2px 6px;
-  border-radius: 2px;
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
 }
 
 #talks .item-meta,
@@ -828,13 +810,9 @@ section.filter-compact {
 }
 
 #talks .item-tags {
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   margin-top: 2px;
   line-height: 1.2;
-}
-
-#talks .role-badge {
-  display: inline-flex;
 }
 
 
@@ -843,8 +821,8 @@ section.filter-compact {
    7. HOME SECTION
    ============================================ */
 .home-intro {
-  --home-name-size: 1.5rem;
-  --home-role-size: 1.5rem;
+  --home-name-size: var(--font-size-large);
+  --home-role-size: var(--font-size-large);
   font-size: var(--home-name-size);
   font-weight: 500;
   line-height: 1.35;
@@ -879,13 +857,11 @@ section.filter-compact {
   background: transparent;
   color: var(--text-dark);
   font-family: 'InterVariable';
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   line-height: 1.1;
   cursor: pointer;
   padding: 0;
   text-decoration: none;
-  border-bottom: 1px dashed var(--text-dark);
-  padding-bottom: 0.5px;
 }
 
 .home-work-link span {
@@ -893,7 +869,6 @@ section.filter-compact {
   margin-left: 0.3em;
   font-size: 0.9em;
   transition: transform 0.16s ease;
-  border-bottom: none;
 }
 
 .home-work-link:hover span {
@@ -1039,7 +1014,7 @@ section.filter-compact {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   color: var(--text-muted);
   height: 100%;
 }
@@ -1055,7 +1030,7 @@ section.filter-compact {
   width: 100%;
   height: 100%;
   --lightbox-control-gap: 68px;
-  --lightbox-counter-size: 1rem;
+  --lightbox-counter-size: var(--font-size-body);
   padding:
     calc(var(--spacing) + var(--lightbox-control-gap) + 38px)
     var(--spacing)
@@ -1149,7 +1124,7 @@ section.filter-compact {
   gap: 8px;
   color: #ffead3;
   font-family: 'InterVariable';
-  font-size: 0.85rem;
+  font-size: var(--font-size-small);
   line-height: 1.2;
   text-transform: none;
   text-align: center;
@@ -1165,7 +1140,7 @@ section.filter-compact {
 }
 
 .lightbox-hint-arrow {
-  font-size: 1.5rem;
+  font-size: var(--font-size-large);
   line-height: 1;
   font-weight: 300;
 }
@@ -1260,7 +1235,7 @@ section.filter-compact {
   background: transparent;
   border: 1px solid rgba(255, 234, 211, 0.35);
   color: rgba(255, 234, 211, 0.68);
-  font-size: 1.5rem;
+  font-size: var(--font-size-large);
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -1285,7 +1260,7 @@ section.filter-compact {
   border: none;
   border-radius: 0;
   color: #ffead3;
-  font-size: 1.5rem;
+  font-size: var(--font-size-large);
   width: 38px;
   height: 38px;
 }
@@ -1376,7 +1351,7 @@ section.filter-compact {
 
 .loading-percentage {
   font-family: 'Geist Mono';
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   font-weight: 400;
   letter-spacing: 0.1em;
   display: inline-block;
@@ -1610,7 +1585,7 @@ section.filter-compact {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-family: 'InterVariable';
-    font-size: 1rem;
+    font-size: var(--font-size-body);
     font-weight: 500;
     color: var(--text-dark);
   }
@@ -1711,7 +1686,7 @@ section.filter-compact {
   }
 
   .nav-item {
-    font-size: 2rem;
+    font-size: var(--font-size-menu);
     letter-spacing: 0;
     line-height: 1.1;
     padding: 2px 0;
@@ -1769,8 +1744,8 @@ section.filter-compact {
   }
 
   .home-intro {
-    --home-name-size: 1.5rem;
-    --home-role-size: 1.5rem;
+    --home-name-size: var(--font-size-large);
+    --home-role-size: var(--font-size-large);
     margin-top: 0;
     line-height: 1.35 !important;
   }
@@ -1781,7 +1756,7 @@ section.filter-compact {
   }
 
   .section-description {
-    font-size: 1rem;
+    font-size: var(--font-size-body);
     margin-bottom: 20px;
   }
 
@@ -1831,7 +1806,7 @@ section.filter-compact {
     right: var(--spacing);
     width: 44px;
     height: 44px;
-    font-size: 1rem;
+    font-size: var(--font-size-body);
     border: none;
   }
 
@@ -1886,8 +1861,8 @@ section.filter-compact {
   }
 
   .home-intro {
-    --home-name-size: 1.5rem;
-    --home-role-size: 1.5rem;
+    --home-name-size: var(--font-size-large);
+    --home-role-size: var(--font-size-large);
     margin-top: 0;
     line-height: 1.35 !important;
   }
