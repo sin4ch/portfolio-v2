@@ -826,6 +826,9 @@ section.filter-compact {
   font-size: var(--home-name-size);
   font-weight: 500;
   line-height: 1.35;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 0;
   max-width: min(760px, 100%);
 }
@@ -1746,6 +1749,7 @@ section.filter-compact {
   .home-intro {
     --home-name-size: var(--font-size-large);
     --home-role-size: var(--font-size-large);
+    display: block;
     margin-top: 0;
     line-height: 1.35 !important;
   }
@@ -1802,8 +1806,8 @@ section.filter-compact {
 
   .lightbox-close {
     position: absolute;
-    top: calc(var(--spacing) + 14px);
-    right: var(--spacing);
+    top: calc(var(--spacing) + env(safe-area-inset-top, 0px) - 8px);
+    right: calc(var(--spacing) + env(safe-area-inset-right, 0px));
     width: 44px;
     height: 44px;
     font-size: var(--font-size-body);
@@ -1863,6 +1867,7 @@ section.filter-compact {
   .home-intro {
     --home-name-size: var(--font-size-large);
     --home-role-size: var(--font-size-large);
+    display: block;
     margin-top: 0;
     line-height: 1.35 !important;
   }
