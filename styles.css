@@ -34,29 +34,29 @@
 :root {
   --bg-light: #ffead3;
   --text-dark: #121212;
-  --text-muted: #8b7355;
-  --text-dark-80: #3f3c36;
-  --text-dark-90: #282520;
-  --item-secondary: #7f6b50;
-  --text-muted-70: #b09a7e;
+  --text-muted: rgba(18, 18, 18, 0.6);
+  --text-dark-80: rgba(18, 18, 18, 0.6);
+  --text-dark-90: rgba(18, 18, 18, 0.6);
+  --item-secondary: rgba(18, 18, 18, 0.6);
+  --text-muted-70: rgba(18, 18, 18, 0.6);
   --spacing: clamp(16px, 3vw, 40px);
-  --line-color: #c9b99a;
+  --line-color: rgba(18, 18, 18, 0.6);
 }
 
 @font-face {
   font-family: 'InterVariable';
   font-style: normal;
-  font-weight: 300 600;
+  font-weight: 300 500;
   font-display: swap;
-  src: url('/fonts/InterVariable.woff2') format('woff2');
+  src: url('https://rsms.me/inter/font-files/InterVariable.woff2?v=4.1') format('woff2');
 }
 
 @font-face {
   font-family: 'InterVariable';
   font-style: italic;
-  font-weight: 300 600;
+  font-weight: 300 500;
   font-display: swap;
-  src: url('/fonts/InterVariable-Italic.woff2') format('woff2');
+  src: url('https://rsms.me/inter/font-files/InterVariable-Italic.woff2?v=4.1') format('woff2');
 }
 
 @font-face {
@@ -164,6 +164,9 @@ body {
   font-family: 'InterVariable';
   color: var(--text-dark);
   line-height: 1.6;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeLegibility;
 }
 
 a {
@@ -249,9 +252,8 @@ body.is-resizing .sidebar {
 }
 
 .nav-item {
-  font-family: inherit;
+  font-family: 'InterVariable';
   font-size: 13.2px;
-  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
   cursor: pointer;
@@ -391,10 +393,9 @@ body.is-resizing .sidebar {
   background-color: var(--bg-light);
   border: 1px solid var(--line-color);
   color: var(--text-dark);
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
   font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;
   transform: translate(-50%, 4px);
@@ -487,7 +488,7 @@ section.filter-compact {
 }
 
 .section-description strong {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .section-description:not(.home-intro) {
@@ -500,7 +501,7 @@ section.filter-compact {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
 }
 
 .section-filter-button {
@@ -511,7 +512,6 @@ section.filter-compact {
   cursor: pointer;
   font-family: inherit;
   font-size: 13.2px;
-  letter-spacing: 0.1em;
   line-height: 1.2;
   padding: 2px 6px;
   text-transform: uppercase;
@@ -535,7 +535,6 @@ section.filter-compact {
   align-items: center;
   display: inline-flex;
   justify-content: center;
-  letter-spacing: 0;
   min-width: 30px;
   text-align: center;
 }
@@ -554,7 +553,7 @@ section.filter-compact {
   flex-wrap: wrap;
   gap: 6px;
   margin: -8px 0 16px;
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
 }
 
 .tag-design-button {
@@ -565,7 +564,6 @@ section.filter-compact {
   cursor: pointer;
   font-family: inherit;
   font-size: 10.5px;
-  letter-spacing: 0.08em;
   line-height: 1.2;
   padding: 3px 8px;
   text-transform: uppercase;
@@ -611,17 +609,15 @@ section.filter-compact {
 }
 
 .item-meta {
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
   font-size: 13.2px;
-  letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
   padding-top: 8px;
-  border-top: 1px solid var(--line-color);
 }
 
 .item-meta:empty {
-  border-top: none;
+  display: block;
 }
 
 .item:has(.item-meta:not(:empty)) + .item:has(.item-meta:not(:empty)) {
@@ -632,10 +628,6 @@ section.filter-compact {
   margin-top: 24px;
 }
 
-#experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-  margin-top: 0;
-}
-
 .item-content {
   grid-column: 2;
   display: flex;
@@ -643,7 +635,14 @@ section.filter-compact {
   align-items: baseline;
   gap: 4px;
   padding-top: 8px;
-  border-top: 1px solid var(--line-color);
+  border-top: 0.5px solid var(--line-color);
+}
+
+.items > .item:has(.item-meta:empty):first-child .item-content,
+.items > .item:has(.item-meta:empty).filter-first-visible .item-content,
+#experience .items > .item:first-child .item-content {
+  border-top: none;
+  padding-top: 0;
 }
 
 .item-content > * {
@@ -651,15 +650,15 @@ section.filter-compact {
 }
 
 .item-tags {
+  font-family: 'InterVariable';
   font-size: 24px;
-  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
 }
 
 .item-title {
-  font-size: 18.72px;
-  font-weight: 400;
+  font-size: 16.72px;
+  font-weight: 500;
   line-height: 1.25;
 }
 
@@ -688,20 +687,20 @@ section.filter-compact {
 }
 
 .date-text {
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
 .article-badge {
+  font-family: 'InterVariable';
   background: var(--bg-light);
   color: var(--text-dark);
   border: 1px solid var(--text-dark);
   padding: 2px 6px;
   border-radius: 2px;
   font-size: 12px;
-  letter-spacing: 0.1em;
   line-height: 1.2;
 }
 
@@ -709,10 +708,74 @@ section.filter-compact {
   color: inherit;
 }
 
-.source-name,
-#experience .item-subtitle,
-.experience-location {
+.source-name {
   font-family: 'Geist Mono';
+}
+
+#experience .item-subtitle,
+#experience .experience-location,
+#experience .experience-duration,
+#opensource .item-subtitle {
+  font-family: 'InterVariable';
+}
+
+#experience .item-content,
+#opensource .item-content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+#experience .item-content > *,
+#opensource .item-content > * {
+  flex-basis: auto;
+}
+
+#experience .item-content a[target="_blank"]::after,
+#opensource .item-content a[target="_blank"]::after {
+  content: none;
+}
+
+.experience-logo-link {
+  display: block;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  text-decoration: none;
+}
+
+.experience-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  corner-shape: squircle;
+  -webkit-corner-smoothing: antialiased;
+  object-fit: cover;
+  display: block;
+  border: none;
+}
+
+.experience-details {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#opensource .item-content {
+  position: relative;
+  cursor: pointer;
+}
+
+#opensource .item-content a.opensource-card-link {
+  display: contents;
+}
+
+#opensource .item-content:hover .item-title {
+  text-decoration: underline;
 }
 
 .source-ref {
@@ -756,9 +819,8 @@ section.filter-compact {
 .item-tools {
   /* Keep project skill tags in the DOM for future design use, but do not render them in the current UI. */
   display: none;
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
   font-size: 13.2px;
-  letter-spacing: 0.05em;
   color: var(--text-muted);
   flex-wrap: wrap;
   gap: 5px 8px;
@@ -821,9 +883,8 @@ section.filter-compact {
 }
 
 .item-stats {
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
   font-size: 10px;
-  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted-70);
   display: flex;
@@ -833,7 +894,7 @@ section.filter-compact {
 }
 
 .stat-badge {
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
   background: var(--bg-light);
   color: var(--text-dark);
   border: 1px solid var(--text-dark);
@@ -851,20 +912,20 @@ section.filter-compact {
 }
 
 .role-badge {
+  font-family: 'InterVariable';
   background: var(--bg-light);
   color: var(--text-dark);
   border: 1px solid var(--text-dark);
   padding: 2px 6px;
   border-radius: 2px;
   font-size: 12px;
-  letter-spacing: 0.1em;
 }
 
 #talks .item-meta,
 #talks .item-subtitle,
 #talks .item-tags,
 #talks .role-badge {
-  font-family: 'Geist Mono';
+  font-family: 'InterVariable';
 }
 
 #talks .item-tags {
@@ -1210,7 +1271,6 @@ section.filter-compact {
   font-family: 'InterVariable';
   font-size: clamp(11px, 1.8vw, 12px);
   line-height: 1.2;
-  letter-spacing: 0;
   text-transform: none;
   text-align: center;
 }
@@ -1362,7 +1422,6 @@ section.filter-compact {
   transform: translateX(-50%);
   color: #ffead3;
   font-size: var(--lightbox-counter-size);
-  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -1385,12 +1444,12 @@ section.filter-compact {
 .dark-mode {
   --bg-light: #121212;
   --text-dark: #ffead3;
-  --text-muted: #a89880;
-  --text-dark-80: #d4c1ad;
-  --text-dark-90: #e9d6c0;
-  --item-secondary: #b8a58e;
-  --text-muted-70: #7d7260;
-  --line-color: #3d3d3d;
+  --text-muted: rgba(255, 234, 211, 0.6);
+  --text-dark-80: rgba(255, 234, 211, 0.6);
+  --text-dark-90: rgba(255, 234, 211, 0.6);
+  --item-secondary: rgba(255, 234, 211, 0.6);
+  --text-muted-70: rgba(255, 234, 211, 0.6);
+  --line-color: rgba(255, 234, 211, 0.6);
   color-scheme: dark;
 }
 
@@ -1438,7 +1497,6 @@ section.filter-compact {
 .loading-percentage {
   font-size: 14px;
   font-weight: 400;
-  letter-spacing: 0.1em;
 }
 
 
@@ -1606,13 +1664,7 @@ section.filter-compact {
     display: none;
   }
 
-  #experience .items > .item:has(.item-meta:not(:empty)):not(:first-child) {
-    margin-top: 16px;
-  }
 
-  #experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-    margin-top: 16px;
-  }
 }
 
 
@@ -1764,7 +1816,6 @@ section.filter-compact {
 
   .nav-item {
     font-size: 32px;
-    letter-spacing: 0;
     line-height: 1.1;
     padding: 2px 0;
     text-align: left;
@@ -1859,13 +1910,7 @@ section.filter-compact {
     display: none;
   }
 
-  #experience .items > .item:has(.item-meta:not(:empty)):not(:first-child) {
-    margin-top: 16px;
-  }
 
-  #experience .item:has(.item-meta:empty) + .item:has(.item-meta:not(:empty)) {
-    margin-top: 16px;
-  }
 
   .lightbox {
     flex-direction: column;
