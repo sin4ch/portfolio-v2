@@ -1714,10 +1714,10 @@ section.filter-compact {
     pointer-events: none;
   }
 
-  /* Mobile bars never move either: layout padding pins them 128px down. */
+  /* Mobile bars never move either: layout padding pins them 168px down. */
   .section-filter {
     position: sticky;
-    top: 128px;
+    top: 168px;
     z-index: 50;
     margin-bottom: 0;
     padding: 0 0 16px;
@@ -1750,7 +1750,7 @@ section.filter-compact {
     grid-template-rows: 1fr;
     min-height: 100vh;
     min-height: 100svh;
-    padding-top: 128px;
+    padding-top: 168px;
   }
 
   body.home-active .layout {
@@ -1773,7 +1773,7 @@ section.filter-compact {
     align-items: flex-start;
     gap: 24px;
     padding:
-      128px
+      168px
       calc(var(--spacing) + env(safe-area-inset-right, 0px))
       calc(72px + env(safe-area-inset-bottom, 0px))
       calc(var(--spacing) + env(safe-area-inset-left, 0px));
