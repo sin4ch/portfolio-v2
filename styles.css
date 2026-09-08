@@ -825,6 +825,10 @@ section.filter-compact {
   margin-top: 4px;
 }
 
+.item-stats:empty {
+  display: none;
+}
+
 .stat-badge,
 .role-badge {
   font-family: 'Geist Mono';
@@ -1666,15 +1670,6 @@ html:has(#talks.active) .scroll-indicator-up {
     margin-top: 0;
   }
 
-  /* TEMP DEBUG: alignment guides, remove before shipping */
-  .mobile-top-bar {
-    border-bottom: 1px solid red;
-  }
-
-  .section-filter {
-    border-bottom: 1px solid red;
-  }
-
   .scroll-indicator-btn.visible {
     opacity: 1;
     visibility: visible;
@@ -1693,7 +1688,7 @@ html:has(#talks.active) .scroll-indicator-up {
     top: 60px;
     z-index: 50;
     margin-bottom: 0;
-    padding: 16px 0;
+    padding: 0 0 16px;
     background-color: var(--bg-light);
   }
 
