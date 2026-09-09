@@ -107,7 +107,7 @@ html {
   scroll-behavior: smooth;
   touch-action: pan-y pinch-zoom;
   scrollbar-width: thin;
-  scrollbar-color: var(--text-muted) transparent;
+  scrollbar-color: var(--text-dark) transparent;
   background-color: var(--bg-light);
   background-image: none;
   color-scheme: light;
@@ -124,7 +124,7 @@ body {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y pinch-zoom;
   scrollbar-width: thin;
-  scrollbar-color: var(--text-muted) transparent;
+  scrollbar-color: var(--text-dark) transparent;
   background-color: var(--bg-light);
   background-image: none;
 }
@@ -157,7 +157,7 @@ body::-webkit-scrollbar-track {
 
 html::-webkit-scrollbar-thumb,
 body::-webkit-scrollbar-thumb {
-  background-color: var(--text-muted);
+  background-color: var(--text-dark);
   border-radius: 999px;
 }
 
@@ -775,44 +775,6 @@ section.filter-compact {
 #opensource .opensource-card-link:focus-visible,
 #opensource .opensource-card-link:active {
   outline: none !important;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Clickable rows (Writing excluded): the entry's main link covers the whole card */
-#projects .item-content,
-#talks .item-content,
-#experience .item-content {
-  position: relative;
-  cursor: pointer;
-}
-
-#projects .item-title > a::after,
-#talks .item-title > a::after,
-#experience .source-ref::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
-#projects .item-title > a:focus,
-#projects .item-title > a:focus-visible,
-#projects .item-title > a:active,
-#talks .item-title > a:focus,
-#talks .item-title > a:focus-visible,
-#talks .item-title > a:active,
-#experience .source-ref:focus,
-#experience .source-ref:focus-visible,
-#experience .source-ref:active {
-  outline: none !important;
-  -webkit-tap-highlight-color: transparent;
-}
-
-#projects .item-content,
-#projects .item-content *,
-#talks .item-content,
-#talks .item-content *,
-#experience .item-content,
-#experience .item-content * {
   -webkit-tap-highlight-color: transparent;
 }
 
