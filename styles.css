@@ -134,9 +134,9 @@ html.loading-active,
 body.loading-active {
   overflow: hidden;
   height: 100vh;
-  height: 100svh;
+  height: 100dvh;
   overscroll-behavior: none;
-  touch-action: none;
+  touch-action: pinch-zoom;
 }
 
 body.lightbox-open {
@@ -702,8 +702,8 @@ section.filter-compact {
 .article-badge {
   font-family: 'Geist Mono';
   background: var(--bg-light);
-  color: var(--text-dark);
-  border: 1px solid var(--text-dark);
+  color: var(--text-muted);
+  border: 1px solid var(--text-muted);
   padding: 2px 6px;
   border-radius: 2px;
   font-size: var(--font-size-badge);
@@ -868,8 +868,8 @@ section.filter-compact {
 .role-badge {
   font-family: 'Geist Mono';
   background: var(--bg-light);
-  color: var(--text-dark);
-  border: 1px solid var(--text-dark);
+  color: var(--text-muted);
+  border: 1px solid var(--text-muted);
   padding: 2px 6px;
   border-radius: 2px;
   font-size: var(--font-size-badge);
@@ -1643,14 +1643,21 @@ section.filter-compact {
   }
 
   html.home-active,
-  body.home-active,
+  body.home-active {
+    overflow: hidden;
+    height: 100vh;
+    height: 100svh;
+    overscroll-behavior: none;
+    touch-action: pinch-zoom;
+  }
+
   html.menu-active,
   body.menu-active {
     overflow: hidden;
     height: 100vh;
     height: 100svh;
     overscroll-behavior: none;
-    touch-action: none;
+    touch-action: pinch-zoom;
   }
 
   .mobile-top-bar {
@@ -1784,7 +1791,7 @@ section.filter-compact {
     visibility: hidden;
     overflow: hidden;
     overscroll-behavior: none;
-    touch-action: none;
+    touch-action: pinch-zoom;
     transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1), visibility 0.35s;
   }
 
