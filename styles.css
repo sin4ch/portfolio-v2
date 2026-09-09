@@ -120,10 +120,10 @@ html {
 body {
   min-height: 100%;
   min-height: 100svh;
-  /* Keep horizontal overflow visible: any clipping value here breaks
-     position:sticky for descendants on mobile browsers. Sideways scroll
-     is prevented instead by keeping wide content (e.g. cursor follower)
-     clamped inside the viewport. */
+  /* Sideways lock lives here (not on html): it hides off-canvas content
+     like the translated phone menu, while leaving position:sticky working.
+     Wide content (e.g. cursor follower) stays clamped in script instead. */
+  overflow-x: clip;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y pinch-zoom;
