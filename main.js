@@ -104,7 +104,6 @@ async function initLoadingSequence() {
 function completeLoading() {
   loadingPercentage.textContent = '100%';
   window.PortfolioGallery.buildGalleryGrid();
-  fetchGitHubStats();
   setTimeout(() => {
     loadingScreen.classList.add('hidden');
     document.documentElement.classList.remove('loading-active');
@@ -1120,13 +1119,18 @@ function fetchGitHubStats() {
 
   els.forEach(function(el) {
     var repo = el.getAttribute('data-repo');
+    var bakedStars = parseInt(el.getAttribute('data-stars'), 10);
+    var bakedForks = parseInt(el.getAttribute('data-forks'), 10);
+    if (!isNaN(bakedStars) && !isNaN(bakedForks)) {
+      renderStats(el, bakedStars, bakedForks);
+    }
     var cacheKey = 'gh-stats-' + repo;
     var cached = null;
     try {
       cached = JSON.parse(localStorage.getItem(cacheKey));
     } catch(e) {}
 
-    var isFresh = cached && (Date.now() - cached.ts < 3600000);
+    var isFresh = cached && (Date.now() - cached.ts < 86400000);
 
     if (isFresh) {
       renderStats(el, cached.stars, cached.forks);
@@ -1158,4 +1162,5 @@ function fetchGitHubStats() {
 createRoundedFavicon();
 initSectionFilters();
 initProjectSort();
+fetchGitHubStats();
 initLoadingSequence();

@@ -106,7 +106,7 @@ html {
   min-height: 100%;
   min-height: 100svh;
   scroll-behavior: smooth;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   scrollbar-width: thin;
   scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
@@ -123,7 +123,7 @@ body {
      clamped inside the viewport. */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   scrollbar-width: thin;
   scrollbar-color: var(--text-muted) transparent;
   background-color: var(--bg-light);
@@ -202,7 +202,7 @@ button:focus:not(:focus-visible),
 .main-wrapper {
   min-height: 100vh;
   min-height: 100svh;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   transform: translateY(100vh);
   transform: translateY(100svh);
   transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -217,7 +217,7 @@ button:focus:not(:focus-visible),
   grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: var(--spacing);
   gap: var(--spacing);
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 
 .sidebar {
@@ -240,7 +240,7 @@ body.is-resizing .sidebar {
 .content {
   grid-column: 2 / 5;
   overflow: visible;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   transition: grid-column 0.3s ease-in-out;
 }
 
@@ -456,6 +456,13 @@ body.is-resizing .sidebar {
   stroke-linejoin: round;
 }
 
+/* Wide envelope: fills its box edge-to-edge like the other marks fill theirs */
+.contact-icon[aria-label="Email"] svg {
+  flex: none;
+  width: 22px;
+  height: 18px;
+}
+
 .contact-icon svg.filled-icon {
   fill: currentColor;
   stroke: none;
@@ -480,7 +487,7 @@ section {
   will-change: opacity;
   overflow: visible;
   padding-bottom: var(--spacing);
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 
 section.active {
@@ -1065,7 +1072,7 @@ section.filter-compact {
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  touch-action: pan-x;
+  touch-action: pan-x pinch-zoom;
   user-select: none;
 }
 
@@ -1631,7 +1638,7 @@ section.filter-compact {
     overflow: auto;
     height: auto;
     overscroll-behavior: auto;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
     scrollbar-width: thin;
   }
 
