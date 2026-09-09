@@ -110,7 +110,7 @@ function completeLoading() {
     document.body.classList.remove('loading-active');
     mainWrapper.classList.add('visible');
     handleInitialRoute();
-    setTimeout(updateScrollIndicator, 100);
+    setTimeout(updatePinnedFilter, 100);
     setTimeout(() => {
       positionCarousel();
       window.PortfolioGallery.loadPhotoCarousel();
@@ -195,14 +195,7 @@ function showSection(targetId, updateUrl = true) {
   document.documentElement.classList.toggle('home-active', isHome);
   packFilterRows();
   positionCarousel();
-  updateScrollIndicator();
-  scheduleScrollIndicatorUpdate();
   updatePinnedFilter();
-  const scrollUpButton = document.getElementById('scroll-indicator-up');
-  if (scrollUpButton) {
-    const sectionFilter = targetSection ? targetSection.querySelector('.section-filter') : null;
-    (sectionFilter || document.querySelector('main.content')).appendChild(scrollUpButton);
-  }
 }
 
 function handleInitialRoute() {
@@ -411,8 +404,7 @@ function initSectionFilters() {
       });
 
       section.classList.toggle('filter-compact', selected !== 'all');
-      updateScrollIndicator();
-      scheduleScrollIndicatorUpdate();
+      updatePinnedFilter();
     }
 
     buttons.forEach(button => {
@@ -477,7 +469,7 @@ function initProjectSort() {
 
       sortedItems.forEach(item => itemsContainer.appendChild(item));
       syncProjectYears(selected === 'date');
-      updateScrollIndicator();
+      updatePinnedFilter();
     }
 
     document.addEventListener('projectstatschange', () => {
@@ -494,131 +486,6 @@ function initProjectSort() {
     applySort(buttons.find(button => button.classList.contains('active')) || buttons[0]);
   });
 }
-
-/* ============================================
-   7. SCROLL INDICATOR
-   ============================================ */
-const scrollIndicatorDown = document.getElementById('scroll-indicator-down');
-const scrollIndicatorUp = document.getElementById('scroll-indicator-up');
-let lastScrollTop = 0;
-let scrollDirection = 'down';
-let scrollIndicatorUpdateFrame = 0;
-// A sliver of scrollable overflow (URL-bar breathing, rounding) is not real
-// scrolling: if the whole page barely moves, keep the arrows hidden.
-const SCROLL_EPSILON = 64;
-
-function hideScrollIndicators() {
-  scrollIndicatorDown?.classList.remove('visible');
-  scrollIndicatorUp?.classList.remove('visible');
-}
-
-function updateScrollIndicator() {
-  updatePinnedFilter();
-  const scrollRoot = document.scrollingElement || document.documentElement;
-  const currentScrollTop = Math.max(0, scrollRoot.scrollTop);
-  const homeSection = document.getElementById('home');
-  const isHomeActive = scrollRoot.classList.contains('home-active')
-    || document.body.classList.contains('home-active')
-    || homeSection?.classList.contains('active');
-
-  // Home is a fixed viewport, so never leave a stale indicator visible there.
-  if (isHomeActive) {
-    lastScrollTop = currentScrollTop;
-    scrollDirection = 'down';
-    hideScrollIndicators();
-    return;
-  }
-
-  const viewportHeight = scrollRoot.clientHeight || window.innerHeight;
-  const scrollHeight = scrollRoot.scrollHeight;
-  const maxScrollTop = Math.max(0, scrollHeight - viewportHeight);
-  const isScrollable = maxScrollTop > SCROLL_EPSILON;
-
-  if (!isScrollable) {
-    lastScrollTop = currentScrollTop;
-    scrollDirection = 'down';
-    hideScrollIndicators();
-    return;
-  }
-
-  const isAtBottom = currentScrollTop >= maxScrollTop - 64;
-  const isAtTop = currentScrollTop <= 20;
-
-  if (currentScrollTop < lastScrollTop) {
-    scrollDirection = 'up';
-  } else if (currentScrollTop > lastScrollTop) {
-    scrollDirection = 'down';
-  }
-  lastScrollTop = currentScrollTop;
-
-  const showUp = isScrollable && scrollDirection === 'up' && !isAtTop;
-  const showDown = isScrollable && !isAtBottom && !showUp && !pageBottomVisible;
-  if (scrollIndicatorDown) {
-    scrollIndicatorDown.classList.toggle('visible', showDown);
-  }
-  if (scrollIndicatorUp) {
-    scrollIndicatorUp.classList.toggle('visible', showUp);
-  }
-}
-
-function scheduleScrollIndicatorUpdate() {
-  if (scrollIndicatorUpdateFrame) return;
-  scrollIndicatorUpdateFrame = window.requestAnimationFrame(() => {
-    scrollIndicatorUpdateFrame = 0;
-    updateScrollIndicator();
-  });
-}
-
-if (scrollIndicatorDown) {
-  scrollIndicatorDown.addEventListener('click', () => {
-    const scrollRoot = document.scrollingElement || document.documentElement;
-    window.scrollTo({ top: scrollRoot.scrollHeight, behavior: 'smooth' });
-  });
-}
-
-if (scrollIndicatorUp) {
-  scrollIndicatorUp.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-}
-
-window.addEventListener('scroll', updateScrollIndicator, { passive: true });
-
-if (typeof ResizeObserver === 'function') {
-  const scrollResizeObserver = new ResizeObserver(() => {
-    scheduleScrollIndicatorUpdate();
-  });
-  const content = document.querySelector('.content');
-  if (content) scrollResizeObserver.observe(content);
-  sections.forEach(section => scrollResizeObserver.observe(section));
-}
-
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', scheduleScrollIndicatorUpdate, { passive: true });
-}
-
-window.addEventListener('pageshow', scheduleScrollIndicatorUpdate);
-window.addEventListener('resize', scheduleScrollIndicatorUpdate);
-window.addEventListener('scrollend', updateScrollIndicator);
-window.addEventListener('load', scheduleScrollIndicatorUpdate);
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => scheduleScrollIndicatorUpdate());
-}
-
-// Page-end sentinel: hides the down button whenever the true bottom of the
-// page is visible, regardless of what the height math says.
-let pageBottomVisible = false;
-const scrollSentinel = document.getElementById('scroll-sentinel');
-if (scrollSentinel && typeof IntersectionObserver === 'function') {
-  new IntersectionObserver(entries => {
-    pageBottomVisible = entries.some(entry => entry.isIntersecting);
-    scheduleScrollIndicatorUpdate();
-  }, { root: null, threshold: 0 }).observe(scrollSentinel);
-}
-
-// Capture scrolls from any scroller, not just the window.
-document.addEventListener('scroll', () => scheduleScrollIndicatorUpdate(), { passive: true, capture: true });
-
 
 /* ============================================
    6b. MOBILE STICKY FILTER (pins the filter bar under the top nav on
@@ -695,6 +562,8 @@ function updatePinnedFilter() {
 }
 
 window.addEventListener('resize', updatePinnedFilter);
+window.addEventListener('scroll', updatePinnedFilter, { passive: true });
+window.addEventListener('pageshow', updatePinnedFilter);
 
 
 /* ============================================
@@ -820,8 +689,7 @@ window.addEventListener('resize', () => {
   if (window.innerWidth > 768 && sidebar.classList.contains('menu-open')) {
     closeMobileMenu();
   }
-  updateScrollIndicator();
-  scheduleScrollIndicatorUpdate();
+  updatePinnedFilter();
   positionCarousel();
   const newColCount = window.PortfolioGallery.getColumnCount();
   if (newColCount !== lastColCount) {
@@ -833,7 +701,7 @@ window.addEventListener('resize', () => {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     positionCarousel();
-    scheduleScrollIndicatorUpdate();
+    updatePinnedFilter();
   }
 });
 

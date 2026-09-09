@@ -13,12 +13,11 @@
    10. Lightbox / Image Viewer
    11. Theme Toggle & Dark Mode
    12. Loading Screen
-   13. Scroll Indicator
-   14. Cursor Follower
-   15. Responsive - Tablet (max-width: 1024px)
-   16. Responsive - Mobile (max-width: 768px)
-   17. Responsive - Small Mobile (max-width: 480px)
-   18. Responsive - Touch Devices
+   13. Cursor Follower
+   14. Responsive - Tablet (max-width: 1024px)
+   15. Responsive - Mobile (max-width: 768px)
+   16. Responsive - Small Mobile (max-width: 480px)
+   17. Responsive - Touch Devices
    ============================================ */
 
 
@@ -1448,89 +1447,6 @@ section.filter-compact {
 }
 
 
-/* ============================================
-   13. SCROLL INDICATOR
-   ============================================ */
-.scroll-indicator-btn {
-  position: fixed;
-  right: calc(var(--spacing) + 8px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: 95;
-  background: var(--bg-light);
-  border: none;
-  box-shadow: 0 0 0 1px var(--line-color);
-  border-radius: 50%;
-  width: 39px;
-  height: 39px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  pointer-events: auto;
-  padding: 0;
-  font: inherit;
-}
-
-.scroll-indicator-btn:hover {
-  box-shadow: 0 0 0 1px var(--text-muted);
-}
-
-.scroll-indicator-btn.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-#scroll-sentinel {
-  height: 1px;
-  pointer-events: none;
-}
-
-.scroll-indicator-down {
-  bottom: 20px;
-}
-
-.scroll-indicator-up {
-  top: 20px;
-}
-
-/* Docked to the filter bar on filter sections: rides with it, so no
-   tuned offset can ever drift (scales with text via margin). */
-.section-filter .scroll-indicator-up {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.75rem;
-}
-
-.scroll-indicator-btn svg {
-  width: 20px;
-  height: 20px;
-  fill: var(--text-muted);
-  will-change: transform;
-}
-
-.scroll-indicator-down svg {
-  animation: bounce-down 2s infinite;
-}
-
-.scroll-indicator-up svg {
-  animation: bounce-up 2s infinite;
-}
-
-@keyframes bounce-down {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(3px); }
-  60% { transform: translateY(1px); }
-}
-
-@keyframes bounce-up {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-3px); }
-  60% { transform: translateY(-1px); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -1549,7 +1465,6 @@ section.filter-compact {
     scroll-behavior: auto;
   }
 
-  .scroll-indicator-btn svg,
   .gallery-skeleton {
     animation: none !important;
   }
@@ -1557,7 +1472,7 @@ section.filter-compact {
 
 
 /* ============================================
-   14. CURSOR FOLLOWER
+   13. CURSOR FOLLOWER
    ============================================ */
 .cursor-follower {
   width: 12px;
@@ -1586,7 +1501,7 @@ section.filter-compact {
 
 
 /* ============================================
-   15. RESPONSIVE - TABLET (max-width: 1024px)
+   14. RESPONSIVE - TABLET (max-width: 1024px)
    ============================================ */
 @media (max-width: 1024px) {
   .layout {
@@ -1631,7 +1546,7 @@ section.filter-compact {
 
 
 /* ============================================
-   16. RESPONSIVE - MOBILE (max-width: 768px)
+   15. RESPONSIVE - MOBILE (max-width: 768px)
    ============================================ */
 @media (max-width: 768px) {
   html, body {
@@ -1715,19 +1630,6 @@ section.filter-compact {
     margin-top: 0;
   }
 
-  .scroll-indicator-btn.visible {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  html:has(#home.active) .scroll-indicator-btn,
-  html.home-active .scroll-indicator-btn,
-  body.home-active .scroll-indicator-btn {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-
   /* Mobile bars never move either: layout padding pins them 168px down. */
   .section-filter {
     position: sticky;
@@ -1745,10 +1647,6 @@ section.filter-compact {
 
   .section-filter-label {
     padding-top: 3px;
-  }
-
-  .scroll-indicator-up {
-    top: calc(var(--spacing) + 64px);
   }
 
   .hamburger {
@@ -1965,18 +1863,6 @@ section.filter-compact {
     border: none;
   }
 
-  .scroll-indicator-btn {
-    right: calc(var(--spacing) + 8px);
-  }
-
-  .scroll-indicator-down {
-    bottom: 30px;
-  }
-
-  .scroll-indicator-up {
-    top: calc(var(--spacing) + 74px);
-  }
-
   .contact-bar {
     width: auto;
     flex-wrap: wrap;
@@ -1987,7 +1873,7 @@ section.filter-compact {
 
 
 /* ============================================
-   17. RESPONSIVE - SMALL MOBILE (max-width: 480px)
+   16. RESPONSIVE - SMALL MOBILE (max-width: 480px)
    ============================================ */
 @media (max-width: 480px) {
   #gallery {
@@ -2014,7 +1900,7 @@ section.filter-compact {
 
 
 /* ============================================
-   18. RESPONSIVE - TOUCH DEVICES
+   17. RESPONSIVE - TOUCH DEVICES
    ============================================ */
 @media (hover: none) and (pointer: coarse) {
   section {
