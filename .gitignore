@@ -8,3 +8,22 @@ main.py
 
 # Output/debug files
 notion_links.json
+
+# Local preview settings and generated tool output
+/vite.config.js
+node_modules/
+/.vite/
+/dist/
+/coverage/
+/playwright-report/
+/test-results/
+/sin4ch-review-*/
+/CODE_REVIEW_*.md
+/.impeccable/
+
+# Local credentials and operating system files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

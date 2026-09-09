@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { createHash } = require('crypto');
 
 const ROOT = path.resolve(__dirname, '..');
 const SITE_URL = 'https://sin4.ch';
@@ -98,31 +99,103 @@ function withRouteMetadata(sourceHtml, route) {
   return html;
 }
 
-function writeRoutePages() {
+function generateRoutePages(emit) {
   const sourceHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
   routes.filter(route => route.slug).forEach(route => {
     const routeDir = path.join(ROOT, route.slug);
-    fs.mkdirSync(routeDir, { recursive: true });
-    fs.writeFileSync(path.join(routeDir, 'index.html'), withRouteMetadata(sourceHtml, route));
+    emit(path.join(routeDir, 'index.html'), withRouteMetadata(sourceHtml, route));
   });
 }
 
-function writeSitemap() {
+// Keep this generated record in Git so dates also survive a fresh checkout.
+// A local cache would lose the old dates when publishing from another machine.
+const SITEMAP_STATE_PATH = path.join(ROOT, 'scripts', 'sitemap-state.json');
+
+function getPageState(content, previous, today) {
+  const hash = createHash('sha256').update(content).digest('hex');
+  return {
+    hash,
+    lastmod: previous?.hash === hash ? previous.lastmod : today
+  };
+}
+
+function generateSitemap(emit) {
   const today = new Date().toISOString().slice(0, 10);
+  const previous = fs.existsSync(SITEMAP_STATE_PATH)
+    ? JSON.parse(fs.readFileSync(SITEMAP_STATE_PATH, 'utf8'))
+    : {};
+  const next = {};
+  // Every generated page includes the full site and can open the gallery.
+  // Include local assets so replacing an image or changing CSS also counts.
+  const sourceHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf8');
+  const gallery = JSON.parse(fs.readFileSync(path.join(ROOT, 'gallery', 'gallery.json'), 'utf8'));
+  const assets = new Set(['styles.css', 'main.js', 'gallery.js', 'gallery/gallery.json', 'site.webmanifest']);
+  for (const match of sourceHtml.matchAll(/(?:src|href)="\/([^"?#]+)(?:[^\"]*)"/g)) {
+    const file = path.join(ROOT, match[1]);
+    if (fs.existsSync(file) && fs.statSync(file).isFile()) assets.add(match[1]);
+  }
+  for (const match of css.matchAll(/url\(['"]?\/([^'"?#)]+)/g)) assets.add(match[1]);
+  for (const image of gallery.images) assets.add(image.url.replace(/^\//, ''));
+  const assetHash = createHash('sha256');
+  for (const asset of [...assets].sort()) {
+    assetHash.update(asset).update('\0').update(fs.readFileSync(path.join(ROOT, asset)));
+  }
+  const sharedHash = assetHash.digest('hex');
+  for (const route of routes) {
+    const key = route.slug || 'home';
+    const html = route.slug ? withRouteMetadata(sourceHtml, route) : sourceHtml;
+    next[key] = getPageState(html + sharedHash, previous[key], today);
+  }
   const entries = routes.map(route => `  <url>
     <loc>${routeUrl(route.slug)}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${next[route.slug || 'home'].lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${route.priority}</priority>
   </url>`).join('\n');
 
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
+  emit(path.join(ROOT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${entries}
 </urlset>
 `);
+  emit(SITEMAP_STATE_PATH, JSON.stringify(next, null, 2) + '\n');
 }
 
-writeRoutePages();
-writeSitemap();
+function getGeneratedFiles() {
+  const files = new Map();
+  const emit = (file, content) => files.set(file, content);
+  generateRoutePages(emit);
+  generateSitemap(emit);
+  return files;
+}
+
+function findOutdatedFiles(files) {
+  return [...files].filter(([file, content]) =>
+    !fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== content
+  ).map(([file]) => path.relative(ROOT, file));
+}
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  if (args.some(arg => arg !== '--check')) {
+    console.error('Usage: bun scripts/generate-route-pages.js [--check]');
+    process.exitCode = 1;
+  } else {
+    const files = getGeneratedFiles();
+    if (args.includes('--check')) {
+      const outdated = findOutdatedFiles(files);
+      outdated.forEach(file => console.error(`${file} needs rebuilding`));
+      if (outdated.length) process.exitCode = 1;
+      else console.log('All generated files are up to date.');
+    } else {
+      for (const [file, content] of files) {
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, content);
+      }
+    }
+  }
+}
+
+module.exports = { getPageState, getGeneratedFiles, findOutdatedFiles };

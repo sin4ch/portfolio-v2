@@ -43,9 +43,6 @@ function getQueryRoute() {
   return new URLSearchParams(window.location.search).get('section')?.toLowerCase() || '';
 }
 
-function normalizeSectionRoute(route) {
-  return route === 'about' ? 'home' : route;
-}
 
 
 
@@ -162,7 +159,6 @@ function showSection(targetId, updateUrl = true) {
   const targetSection = document.getElementById(targetId);
   if (targetSection) {
     targetSection.classList.add('active');
-    if (typeof badgeRectsDirty !== 'undefined') badgeRectsDirty = true;
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
   navItems.forEach(nav => {
@@ -205,7 +201,7 @@ function handleInitialRoute() {
     return;
   }
   const query = getQueryRoute();
-  const route = normalizeSectionRoute(query || path || 'home');
+  const route = query || path || 'home';
   const targetSection = VALID_SECTIONS.includes(route)  ? route : 'home';
   history.replaceState({ section: targetSection }, '', getSectionPath(targetSection));
   showSection(targetSection, false);
@@ -226,7 +222,10 @@ if (mobileProfilePhoto) {
 }
 
 function getFocusableMenuElements() {
-  return sidebar.querySelectorAll('button.nav-item:not([data-target="home"]), button.theme-toggle, .mobile-menu-contact a');
+  return [...sidebar.querySelectorAll('button, a[href]'),
+    document.getElementById('mobileProfilePhoto'),
+    document.getElementById('themeToggleMobile'), hamburger]
+    .filter(el => el && !el.disabled && el.getClientRects().length > 0);
 }
 
 function repaintMobileMenuText() {
@@ -239,37 +238,48 @@ function repaintMobileMenuText() {
   });
 }
 
+let menuScrollY = 0;
+
 function openMobileMenu() {
+  if (sidebar.classList.contains('menu-open')) return;
+  menuScrollY = window.scrollY;
+  document.body.style.top = `-${menuScrollY}px`;
   sidebar.classList.add('menu-open');
   document.body.classList.add('menu-active');
   document.documentElement.classList.add('menu-active');
   hamburger.classList.add('open');
   hamburger.setAttribute('aria-label', 'Close menu');
+  hamburger.setAttribute('aria-expanded', 'true');
   repaintMobileMenuText();
   window.setTimeout(repaintMobileMenuText, 380);
   const firstNav = sidebar.querySelector('button.nav-item:not([data-target="home"])');
-  if (firstNav) firstNav.focus();
+  if (firstNav) firstNav.focus({ preventScroll: true });
   document.addEventListener('keydown', handleMenuFocusTrap);
 }
 
 function closeMobileMenu(options = {}) {
+  if (!sidebar.classList.contains('menu-open')) return;
   sidebar.classList.remove('menu-open');
   document.body.classList.remove('menu-active');
   document.documentElement.classList.remove('menu-active');
+  document.body.style.top = '';
+  window.scrollTo({ top: menuScrollY, behavior: 'instant' });
+  updatePinnedFilter();
   hamburger.classList.remove('open');
   hamburger.setAttribute('aria-label', 'Open menu');
+  hamburger.setAttribute('aria-expanded', 'false');
   document.removeEventListener('keydown', handleMenuFocusTrap);
   if (options.focusHamburger) {
-    hamburger.focus();
+    hamburger.focus({ preventScroll: true });
   }
 }
 
 function showMenuSection(targetId) {
   sections.forEach(s => s.style.transition = 'none');
+  closeMobileMenu();
   showSection(targetId);
   document.body.offsetHeight;
   sections.forEach(s => s.style.transition = '');
-  closeMobileMenu();
 }
 
 function handleMenuFocusTrap(e) {
@@ -280,7 +290,6 @@ function handleMenuFocusTrap(e) {
   if (e.key !== 'Tab') return;
   e.preventDefault();
   const focusable = Array.from(getFocusableMenuElements());
-  focusable.push(hamburger);
   if (focusable.length === 0) return;
   const currentIndex = focusable.indexOf(document.activeElement);
   let nextIndex;
@@ -321,7 +330,7 @@ window.addEventListener('popstate', (event) => {
   if (event.state && event.state.section) {
     showSection(event.state.section, false);
   } else {
-    const route = normalizeSectionRoute(getPathRoute() || 'home');
+    const route = getPathRoute() || 'home';
     const targetSection = VALID_SECTIONS.includes(route)  ? route : 'home';
     showSection(targetSection, false);
   }
@@ -530,6 +539,9 @@ function updatePinnedFilter() {
     unpinFilter();
     return;
   }
+  // Fixed-body menu locking resets window.scrollY, but preserves the visible page.
+  // Keep the filter where it was until the original scroll position is restored.
+  if (sidebar.classList.contains('menu-open')) return;
   const activeSection = document.querySelector('section.active');
   const activeFilter = activeSection ? activeSection.querySelector('.section-filter') : null;
   if (pinnedFilter && pinnedFilter !== activeFilter) {
@@ -561,7 +573,6 @@ function updatePinnedFilter() {
   }
 }
 
-window.addEventListener('resize', updatePinnedFilter);
 window.addEventListener('scroll', updatePinnedFilter, { passive: true });
 window.addEventListener('pageshow', updatePinnedFilter);
 
@@ -723,21 +734,18 @@ function updateSystemThemeColor(isDark) {
   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 }
 
-function applyThemeToggle() {
+function toggleTheme() {
   const isDark = document.body.classList.toggle('dark-mode');
   document.documentElement.classList.toggle('dark-mode', isDark);
   updateSystemThemeColor(isDark);
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  try {
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  } catch {}
 }
 
-function toggleTheme() {
-  applyThemeToggle();
-}
 
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark-mode');
-  document.documentElement.classList.add('dark-mode');
-}
+// The early theme script already read the saved choice before the first paint.
+document.body.classList.toggle('dark-mode', document.documentElement.classList.contains('dark-mode'));
 updateSystemThemeColor(document.documentElement.classList.contains('dark-mode'));
 
 const themeToggle = document.getElementById('themeToggle');
@@ -751,218 +759,47 @@ if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
    11. CURSOR FOLLOWER
    ============================================ */
 const cursorFollower = document.getElementById('cursorFollower');
-const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.matchMedia('(hover: none)').matches;
+const cursorVisibleQuery = window.matchMedia('(min-width: 1025px)');
+const coarsePointerQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
+const reducedCursorMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+let mouseX = 0;
+let mouseY = 0;
+let followerX = 0;
+let followerY = 0;
+let cursorFrame = null;
 
-var badgeRectsDirty = true;
-
-if (!isTouchDevice) {
-  var mouseX = 0;
-  var mouseY = 0;
-  var followerX = 0;
-  var followerY = 0;
-  var badgeElements = [];
-  var badgeRects = [];
-  var activeBadge = null;
-  var isOverInteractive = false;
-
-  var MAGNETIC_RADIUS = 20;
-  var EASE_DEFAULT = 0.15;
-  var EASE_ATTRACT = 0.12;
-  var BASE_SIZE = 12;
-  var SHAPE_EASE_IN = 0.07;
-  var SHAPE_EASE_OUT = 0.15;
-
-  // Lerped shape state for fluid morph
-  var currentScaleX = 1;
-  var currentScaleY = 1;
-  var currentBorderRadius = 6; // px (6 = circle for 12px element)
-
-  function distToRect(px, py, r) {
-    var dx = Math.max(r.left - px, 0, px - r.right);
-    var dy = Math.max(r.top - py, 0, py - r.bottom);
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function cacheBadgeElements() {
-    var badges = document.querySelectorAll('.stat-badge, .role-badge');
-    badgeElements = [];
-    badgeRects = [];
-    badges.forEach(function(badge) {
-      var section = badge.closest('section');
-      if (section && !section.classList.contains('active')) return;
-      badgeElements.push(badge);
-      badgeRects.push(badge.getBoundingClientRect());
-    });
-    badgeRectsDirty = false;
-  }
-
-  function findClosestBadge() {
-    var closestDist = MAGNETIC_RADIUS;
-    var closestRect = null;
-    var closestEl = null;
-
-    for (var i = 0; i < badgeElements.length; i++) {
-      var rect = badgeRects[i];
-      if (rect.width === 0 || rect.height === 0) continue;
-      var d = distToRect(mouseX, mouseY, rect);
-      if (d < closestDist) {
-        closestDist = d;
-        closestRect = rect;
-        closestEl = badgeElements[i];
-      }
-    }
-
-    return {
-      distance: closestDist,
-      rect: closestRect,
-      element: closestEl
-    };
-  }
-
-  function getFollowerTarget(closestBadge) {
-    var strength = 0;
-    var target = {
-      x: mouseX,
-      y: mouseY,
-      scaleX: 1,
-      scaleY: 1,
-      radius: 6,
-      rect: closestBadge.rect,
-      element: closestBadge.element
-    };
-
-    if (closestBadge.rect) {
-      strength = 1 - closestBadge.distance / MAGNETIC_RADIUS;
-      strength = strength * strength; // quadratic ease-in
-      var cx = closestBadge.rect.left + closestBadge.rect.width / 2;
-      var cy = closestBadge.rect.top + closestBadge.rect.height / 2;
-      target.x = mouseX + (cx - mouseX) * strength;
-      target.y = mouseY + (cy - mouseY) * strength;
-
-      // Target: fill inside the badge
-      target.scaleX = 1 + (closestBadge.rect.width / BASE_SIZE - 1) * strength;
-      target.scaleY = 1 + (closestBadge.rect.height / BASE_SIZE - 1) * strength;
-      // Lerp toward 2px border-radius (matches badge border-radius)
-      target.radius = 6 + (2 - 6) * strength;
-    }
-
-    return target;
-  }
-
-    function updateFollowerState(target) {
-      var ease = target.rect ? EASE_ATTRACT : EASE_DEFAULT;
-      followerX += (target.x - followerX) * ease;
-      followerY += (target.y - followerY) * ease;
-
-      // Keep the follower inside the viewport so the page never gains a horizontal scrollbar
-      followerX = Math.min(Math.max(followerX, 16), window.innerWidth - 16);
-      followerY = Math.min(Math.max(followerY, 16), window.innerHeight - 16);
-
-    // Lerp shape — slow approach, fast retreat
-    var shapeEase = target.rect ? SHAPE_EASE_IN : SHAPE_EASE_OUT;
-    currentScaleX += (target.scaleX - currentScaleX) * shapeEase;
-    currentScaleY += (target.scaleY - currentScaleY) * shapeEase;
-    currentBorderRadius += (target.radius - currentBorderRadius) * shapeEase;
-
-    // Track proximity separately from visual morph
-    var wasBadge = !!activeBadge;
-    activeBadge = target.element || null;
-
-    // Re-apply hover when leaving badge but still over a link
-    if (wasBadge && !activeBadge && isOverInteractive) {
-      cursorFollower.classList.add('hovering');
-    }
-  }
-
-  function getDefaultFollowerTransform() {
-    return 'translate3d(' + followerX.toFixed(1) + 'px,' + followerY.toFixed(1) + 'px,0) translate(-50%, -50%)';
-  }
-
-  function getMorphedFollowerTransform() {
-    return getDefaultFollowerTransform() + ' scale(' + currentScaleX.toFixed(3) + ',' + currentScaleY.toFixed(3) + ')';
-  }
-
-  function resetFollowerShape() {
-    currentScaleX = 1;
-    currentScaleY = 1;
-    currentBorderRadius = 6;
-    cursorFollower.style.borderRadius = '';
-  }
-
-  function applyFollowerStyle(target) {
-    // Shape: only apply transform/borderRadius when morphing
-    var isBlob = Math.abs(currentScaleX - 1) > 0.01 || Math.abs(currentScaleY - 1) > 0.01;
-
-    if (isBlob && target.rect) {
-      // Near a badge: morph and suppress link hover
-      cursorFollower.classList.remove('hovering');
-      cursorFollower.style.transform = getMorphedFollowerTransform();
-      cursorFollower.style.borderRadius = currentBorderRadius.toFixed(1) + 'px';
-    } else if (isBlob && cursorFollower.classList.contains('hovering')) {
-      // Left badge, on a link: snap morph to default so CSS hover works
-      resetFollowerShape();
-      cursorFollower.style.transform = getDefaultFollowerTransform();
-    } else if (isBlob) {
-      // Left badge, empty space: smooth retreat animation
-      cursorFollower.style.transform = getMorphedFollowerTransform();
-      cursorFollower.style.borderRadius = currentBorderRadius.toFixed(1) + 'px';
-    } else {
-      // Not morphing: clean default
-      resetFollowerShape();
-      cursorFollower.style.transform = getDefaultFollowerTransform();
-    }
-  }
-
-  function animateFollower() {
-    if (badgeRectsDirty) cacheBadgeElements();
-    var target = getFollowerTarget(findClosestBadge());
-    updateFollowerState(target);
-    applyFollowerStyle(target);
-
-    requestAnimationFrame(animateFollower);
-  }
-
-  function bindCursorTracking() {
-    document.addEventListener('mousemove', function(e) {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      badgeRectsDirty = true;
-    });
-  }
-
-  function bindInteractiveHover() {
-    var interactiveElements = document.querySelectorAll('a, button, .theme-toggle');
-    interactiveElements.forEach(function(el) {
-      el.addEventListener('mouseenter', function() {
-        isOverInteractive = true;
-        if (!activeBadge) cursorFollower.classList.add('hovering');
-      });
-      el.addEventListener('mouseleave', function() {
-        isOverInteractive = false;
-        cursorFollower.classList.remove('hovering');
-      });
-    });
-  }
-
-  function invalidateBadgeCache() {
-    badgeRectsDirty = true;
-  }
-
-  function bindBadgeCacheInvalidation() {
-    sections.forEach(function(s) {
-      s.addEventListener('scroll', invalidateBadgeCache, { passive: true });
-    });
-    document.addEventListener('scroll', invalidateBadgeCache, { passive: true, capture: true });
-    window.addEventListener('scroll', invalidateBadgeCache, { passive: true });
-    window.addEventListener('resize', invalidateBadgeCache, { passive: true });
-  }
-
-  bindCursorTracking();
-  bindInteractiveHover();
-  bindBadgeCacheInvalidation();
-  animateFollower();
+function animateFollower() {
+  followerX += (mouseX - followerX) * 0.15;
+  followerY += (mouseY - followerY) * 0.15;
+  followerX = Math.min(Math.max(followerX, 16), window.innerWidth - 16);
+  followerY = Math.min(Math.max(followerY, 16), window.innerHeight - 16);
+  cursorFollower.style.transform = 'translate3d(' + followerX.toFixed(1) + 'px,' + followerY.toFixed(1) + 'px,0) translate(-50%, -50%)';
+  cursorFrame = requestAnimationFrame(animateFollower);
 }
 
+function syncCursorAnimation() {
+  const visible = !document.hidden && cursorVisibleQuery.matches && !coarsePointerQuery.matches && !reducedCursorMotionQuery.matches;
+  if (visible && cursorFrame === null) {
+    cursorFrame = requestAnimationFrame(animateFollower);
+  } else if (!visible && cursorFrame !== null) {
+    cancelAnimationFrame(cursorFrame);
+    cursorFrame = null;
+  }
+}
+
+document.addEventListener('mousemove', event => {
+  mouseX = event.clientX;
+  mouseY = event.clientY;
+});
+document.querySelectorAll('a, button, .theme-toggle').forEach(el => {
+  el.addEventListener('mouseenter', () => cursorFollower.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => cursorFollower.classList.remove('hovering'));
+});
+cursorVisibleQuery.addEventListener('change', syncCursorAnimation);
+coarsePointerQuery.addEventListener('change', syncCursorAnimation);
+reducedCursorMotionQuery.addEventListener('change', syncCursorAnimation);
+document.addEventListener('visibilitychange', syncCursorAnimation);
+syncCursorAnimation();
 
 
 /* ============================================
@@ -981,7 +818,6 @@ function fetchGitHubStats() {
     el.innerHTML =
       '<span class="stat-badge"><svg viewBox="0 0 16 16" fill="currentColor"><path d="' + STAR_PATH + '"/></svg> ' + stars + '</span>' +
       '<span class="stat-badge"><svg viewBox="0 0 16 16" fill="currentColor"><path d="' + FORK_PATH + '"/></svg> ' + forks + '</span>';
-    if (typeof badgeRectsDirty !== 'undefined') badgeRectsDirty = true;
     document.dispatchEvent(new CustomEvent('projectstatschange'));
   }
 
@@ -1015,8 +851,10 @@ function fetchGitHubStats() {
         if (typeof data.stargazers_count === 'number') {
           var stars = data.stargazers_count;
           var forks = data.forks_count;
-          localStorage.setItem(cacheKey, JSON.stringify({ stars: stars, forks: forks, ts: Date.now() }));
           renderStats(el, stars, forks);
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify({ stars: stars, forks: forks, ts: Date.now() }));
+          } catch(e) {}
         }
       })
       .catch(function() {});

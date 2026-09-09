@@ -1,75 +1,91 @@
-// Bakes live GitHub star/fork counts into index.html so the first paint
-// never waits on the network. Re-run before publishing:
-//     node scripts/bake-github-stats.js
-// Unauthenticated API access is fine here (one request per repo, run rarely).
+// Save live counts in the source HTML, then regenerate the section pages:
+//     bun scripts/bake-github-stats.js
+//     bun scripts/generate-route-pages.js
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
 const ROOT = path.resolve(__dirname, '..');
 
-function fetchJson(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, {
-      headers: {
-        'User-Agent': 'sin4ch-site-builder',
-        'Accept': 'application/vnd.github+json'
-      }
-    }, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        if (res.statusCode !== 200) {
-          reject(new Error('HTTP ' + res.statusCode + ' for ' + url));
-          return;
-        }
-        try {
-          resolve(JSON.parse(data));
-        } catch (err) {
-          reject(err);
-        }
-      });
-    }).on('error', reject);
+async function fetchJson(url, timeoutMs = 10000) {
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'sin4ch-site-builder',
+      'Accept': 'application/vnd.github+json'
+    },
+    signal: AbortSignal.timeout(timeoutMs)
   });
+  if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+  return response.json();
 }
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function getRepos(html) {
+  const repos = new Set();
+  new HTMLRewriter().on('.item-stats, [data-repo]', {
+    element(el) {
+      const repo = el.getAttribute('data-repo')?.trim();
+      const classes = (el.getAttribute('class') || '').split(/\s+/);
+      if (!repo || !classes.includes('item-stats')) {
+        throw new Error('Expected an item-stats element with a non-empty data-repo');
+      }
+      repos.add(repo);
+    }
+  }).transform(html);
+  if (!repos.size) throw new Error('No GitHub stats elements found');
+  return [...repos];
+}
+
+function updateStats(html, counts) {
+  const missing = new Set(counts.keys());
+  const result = new HTMLRewriter().on('.item-stats[data-repo]', {
+    element(el) {
+      const repo = el.getAttribute('data-repo').trim();
+      const stats = counts.get(repo);
+      if (!stats) return;
+      el.setAttribute('data-stars', String(stats.stars));
+      el.setAttribute('data-forks', String(stats.forks));
+      missing.delete(repo);
+    }
+  }).transform(html);
+  if (missing.size) throw new Error('Missing stats elements: ' + [...missing].join(', '));
+  return result;
+}
+
+async function bakeStats(html, fetchRepo = repo => fetchJson('https://api.github.com/repos/' + repo)) {
+  const counts = new Map();
+  const errors = [];
+  for (const repo of getRepos(html)) {
+    try {
+      const data = await fetchRepo(repo);
+      const stars = data.stargazers_count;
+      const forks = data.forks_count;
+      if (![stars, forks].every(value => Number.isSafeInteger(value) && value >= 0)) {
+        throw new Error('Invalid star or fork count');
+      }
+      counts.set(repo, { stars, forks });
+    } catch (error) {
+      errors.push(`${repo}: ${error.message} (kept previous values)`);
+    }
+  }
+  return { html: updateStats(html, counts), counts, errors };
 }
 
 async function main() {
   const indexPath = path.join(ROOT, 'index.html');
-  let html = fs.readFileSync(indexPath, 'utf8');
-  const repos = [...new Set([...html.matchAll(/data-repo="([^"]+)"/g)].map(match => match[1]))];
-  let updated = 0;
-  let failed = 0;
-  for (const repo of repos) {
-    try {
-      const data = await fetchJson('https://api.github.com/repos/' + repo);
-      const stars = typeof data.stargazers_count === 'number' ? data.stargazers_count : 0;
-      const forks = typeof data.forks_count === 'number' ? data.forks_count : 0;
-      const pattern = new RegExp(
-        '<div class="item-stats" data-repo="' + escapeRegExp(repo) + '"' +
-        '(?:\\sdata-stars="\\d+")?(?:\\sdata-forks="\\d+")?',
-        'g'
-      );
-      const replacement =
-        '<div class="item-stats" data-repo="' + repo + '"' +
-        ' data-stars="' + stars + '" data-forks="' + forks + '"';
-      const next = html.replace(pattern, replacement);
-      if (next !== html) {
-        html = next;
-        updated += 1;
-      }
-      console.log(repo + ': ' + stars + ' stars, ' + forks + ' forks');
-    } catch (err) {
-      failed += 1;
-      console.error('SKIP ' + repo + ': ' + err.message + ' (kept previous values)');
-    }
+  const result = await bakeStats(fs.readFileSync(indexPath, 'utf8'));
+  fs.writeFileSync(indexPath, result.html);
+  for (const [repo, { stars, forks }] of result.counts) {
+    console.log(`${repo}: ${stars} stars, ${forks} forks`);
   }
-  fs.writeFileSync(indexPath, html);
-  console.log('baked ' + updated + ' entries, ' + failed + ' failed');
-  if (failed > 0) process.exitCode = 1;
+  result.errors.forEach(error => console.error('SKIP ' + error));
+  console.log(`baked ${result.counts.size} repositories, ${result.errors.length} failed`);
+  if (result.errors.length) process.exitCode = 1;
 }
 
-main();
+if (require.main === module) {
+  main().catch(error => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { fetchJson, getRepos, updateStats, bakeStats };

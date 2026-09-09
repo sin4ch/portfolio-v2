@@ -36,12 +36,15 @@
   const lightboxCounter = document.getElementById('lightbox-counter');
   const lightboxStoryProgress = document.getElementById('lightbox-story-progress');
   const STORY_DURATION = 5000;
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let currentImageIndex = 0;
   let storyTimer = null;
   let storyStartedAt = 0;
   let storyRemaining = STORY_DURATION;
   let storyPaused = false;
   let lightboxScrollY = 0;
+  let lightboxTrigger = null;
+  let backgroundStates = [];
 
   /* ============================================
      2. GALLERY DATA & LOADING
@@ -231,10 +234,12 @@
   }
 
   function createGalleryItem(img) {
-    const itemEl = document.createElement('div');
+    const itemEl = document.createElement('button');
+    itemEl.type = 'button';
     itemEl.className = 'gallery-item is-loading';
+    itemEl.setAttribute('aria-label', 'Open ' + (img.title || 'gallery photo'));
     const imgEl = document.createElement('img');
-    imgEl.src = img.blobUrl || img.url;
+    imgEl.src = img.url;
     imgEl.alt = img.title || 'Gallery photo';
     imgEl.loading = 'lazy';
     imgEl.decoding = 'async';
@@ -311,9 +316,8 @@
     const track = targetTrack || document.querySelector('.photo-carousel-track');
     if (!track || track.children.length >= carouselImageLimit) return;
     const imgEl = document.createElement('img');
-    imgEl.src = img.blobUrl || img.url;
+    imgEl.src = img.url;
     imgEl.alt = img.title || 'Gallery photo';
-    imgEl.className = 'carousel-img-loaded';
     imgEl.decoding = 'async';
     imgEl.loading = options.highPriority ? 'eager' : 'lazy';
     if (options.highPriority) {
@@ -428,14 +432,7 @@
       }, 100);
     }
     carousel.addEventListener('touchend', resumeAfterTouchScrollSettles, { passive: true });
-    carousel.addEventListener('touchcancel', () => {
-      window.clearTimeout(touchResumeTimer);
-      touchResumeTimer = window.setTimeout(() => {
-        scrollPosition = carousel.scrollLeft;
-        isTouchScrolling = false;
-        lastTimestamp = 0;
-      }, 100);
-    }, { passive: true });
+    carousel.addEventListener('touchcancel', resumeAfterTouchScrollSettles, { passive: true });
     carousel.addEventListener('wheel', (event) => {
       const horizontalDelta = Math.abs(event.deltaX) >= Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       if (horizontalDelta < 0 && carousel.scrollLeft < 48) addBackwardScrollBuffer();
@@ -453,10 +450,17 @@
      ============================================ */
   function openLightbox(index) {
     if (galleryImages.length === 0) return;
+    lightboxTrigger = document.activeElement;
+    backgroundStates = [...document.body.children]
+      .filter(el => el !== lightbox && el.tagName !== 'SCRIPT')
+      .map(el => [el, el.inert]);
+    backgroundStates.forEach(([el]) => { el.inert = true; });
     currentImageIndex = index;
     lightboxScrollY = window.scrollY || document.documentElement.scrollTop || 0;
     updateLightboxImage();
     lightbox.classList.add('active');
+    lightbox.removeAttribute('aria-hidden');
+    lightboxClose.focus({ preventScroll: true });
     document.body.classList.add('lightbox-open');
     document.body.style.top = `-${lightboxScrollY}px`;
     startStoryTimer();
@@ -464,7 +468,12 @@
   }
 
   function closeLightbox() {
+    if (!lightbox.classList.contains('active')) return;
     lightbox.classList.remove('active');
+    backgroundStates.forEach(([el, wasInert]) => { el.inert = wasInert; });
+    backgroundStates = [];
+    if (lightboxTrigger?.isConnected) lightboxTrigger.focus({ preventScroll: true });
+    lightbox.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lightbox-open');
     document.body.style.top = '';
     const root = document.documentElement;
@@ -480,7 +489,7 @@
 
   function updateLightboxImage() {
     const img = galleryImages[currentImageIndex];
-    lightboxImg.src = img.blobUrl || img.url;
+    lightboxImg.src = img.url;
     lightboxImg.alt = img.title || 'Gallery photo';
     const counterText = (currentImageIndex + 1) + ' / ' + galleryImages.length;
     lightboxCounter.textContent = counterText;
@@ -493,6 +502,7 @@
     }
     if (lightboxStoryProgress) {
       lightboxStoryProgress.classList.remove('is-running');
+      lightboxStoryProgress.style.animation = 'none';
     }
   }
 
@@ -502,6 +512,13 @@
     storyRemaining = duration;
     storyStartedAt = performance.now();
     storyPaused = false;
+    lightboxPauseZone.setAttribute('aria-pressed', 'false');
+    lightboxPauseZone.disabled = reducedMotionQuery.matches;
+    lightboxPauseZone.setAttribute('aria-label', reducedMotionQuery.matches
+      ? 'Automatic slideshow is off for reduced motion'
+      : 'Pause or play slideshow');
+    if (reducedMotionQuery.matches) return;
+    lightboxStoryProgress.style.animationPlayState = 'running';
     lightboxStoryProgress.style.animation = 'none';
     lightboxStoryProgress.offsetHeight;
     lightboxStoryProgress.style.animation = 'story-progress ' + duration + 'ms linear forwards';
@@ -515,29 +532,19 @@
       clearTimeout(storyTimer);
       storyTimer = null;
     }
-    storyRemaining = Math.max(250, storyRemaining - (performance.now() - storyStartedAt));
-    const computedWidth = getComputedStyle(lightboxStoryProgress).width;
-    lightboxStoryProgress.classList.remove('is-running');
-    lightboxStoryProgress.style.animation = 'none';
-    lightboxStoryProgress.style.width = computedWidth;
-    lightboxStoryProgress.style.transform = 'none';
+    storyRemaining = Math.max(0, storyRemaining - (performance.now() - storyStartedAt));
+    lightboxStoryProgress.style.animationPlayState = 'paused';
+    lightboxPauseZone.setAttribute('aria-pressed', 'true');
     storyPaused = true;
   }
 
   function resumeStoryTimer() {
     if (!storyPaused) return;
-    if (lightboxStoryProgress) {
-      lightboxStoryProgress.style.width = '';
-      lightboxStoryProgress.style.animation = '';
-      lightboxStoryProgress.style.transform = '';
-    }
-    startStoryTimer(storyRemaining);
-  }
-
-  function pulseTapZone(zone) {
-    if (!zone) return;
-    zone.classList.add('is-tapped');
-    setTimeout(() => zone.classList.remove('is-tapped'), 180);
+    storyPaused = false;
+    storyStartedAt = performance.now();
+    lightboxStoryProgress.style.animationPlayState = 'running';
+    lightboxPauseZone.setAttribute('aria-pressed', 'false');
+    storyTimer = setTimeout(showNextImage, storyRemaining);
   }
 
   function showTapHint() {
@@ -563,36 +570,41 @@
   function bindLightboxEvents() {
     if (!lightbox) return;
     lightboxClose.addEventListener('click', closeLightbox);
-    lightboxTapPrev.addEventListener('click', () => {
-      pulseTapZone(lightboxTapPrev);
-      showPrevImage();
-    });
-    lightboxTapNext.addEventListener('click', () => {
-      pulseTapZone(lightboxTapNext);
-      showNextImage();
-    });
+    lightboxTapPrev.addEventListener('click', showPrevImage);
+    lightboxTapNext.addEventListener('click', showNextImage);
     lightboxPauseZone.addEventListener('click', () => {
       if (storyPaused) {
         resumeStoryTimer();
-        lightboxPauseZone.classList.remove('is-tapped');
       } else {
         pauseStoryTimer();
-        lightboxPauseZone.classList.add('is-tapped');
       }
     });
     document.addEventListener('keydown', (e) => {
       if (!lightbox.classList.contains('active')) return;
-      if (e.key === 'Escape') {
+      if (e.key === 'Tab') {
+        const controls = [...lightbox.querySelectorAll('button:not(:disabled)')];
+        const index = controls.indexOf(document.activeElement);
+        const next = e.shiftKey
+          ? (index <= 0 ? controls.length - 1 : index - 1)
+          : (index + 1) % controls.length;
+        e.preventDefault();
+        controls[next].focus();
+      } else if (e.key === 'Escape') {
         closeLightbox();
       } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
         showPrevImage();
       } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
         showNextImage();
       }
     });
   }
 
   bindLightboxEvents();
+  reducedMotionQuery.addEventListener('change', () => {
+    if (lightbox.classList.contains('active')) startStoryTimer();
+  });
 
   /* ============================================
      6. PUBLIC API
